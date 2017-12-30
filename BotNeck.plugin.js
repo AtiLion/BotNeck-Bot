@@ -203,7 +203,7 @@ BotNeckAPI.GetCurrentChannelID = function()
 {
 	return window.location.pathname.split("/")[3];
 };
-BotNeckAPI.GetDiscordToken = function() // WARNING: This uses an exploit in the iframe of electron. Use with caughtion!!
+BotNeckAPI.GetDiscordToken = function() // WARNING: This uses an exploit in the iframe of electron. Use with caution!!
 {
 	let elem = document.createElement("iframe");
 	let token = document.body.appendChild(elem).contentWindow.localStorage.token.substring(1).slice(0, -1);
