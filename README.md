@@ -4,13 +4,6 @@ BotNeck Bot is a self-bot that is implemented into discord as a **BetterDiscord*
 
 ----------
 
-Table of contents
------------------
-
-[TOC]
-
-----------
-
 Features
 --------
 
