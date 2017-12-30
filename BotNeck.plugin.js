@@ -52,7 +52,16 @@ BotNeckPlugin.prototype.start = function()
 		XMLHttpRequest.prototype.send = function(data) {
 			if(data != null)
 			{
-				let msg = JSON.parse(data);
+				let msg = null;
+				try
+				{
+					msg = JSON.parse(data);
+				}
+				catch(e)
+				{
+					send.call(this, data);
+					return;
+				}
 
 				if(!msg.hasOwnProperty("content") || !msg.hasOwnProperty("nonce") || !msg.hasOwnProperty("tts"))
 				{
@@ -131,6 +140,7 @@ BotNeckPlugin.prototype.start = function()
 				return;
 			}
 			send.call(this, data);
+			return;
 		};
 	})(XMLHttpRequest.prototype.send);
 };
