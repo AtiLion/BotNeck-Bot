@@ -9,6 +9,7 @@ reload.prototype.execute = function(msg)
   {
     BotNeckAPI.UnloadModules();
     BotNeckAPI.LoadModules();
+    BotNeckAPI.LoadConfig();
 
     let emb = {
       title: "BotNeck Reloader",

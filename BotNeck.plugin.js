@@ -6,6 +6,7 @@ var BotNeckModules = {};
 var BotNeckData = {
 	bdPath: "",
 	botneckModules: "",
+	botneckConfig: "",
 	eWindow: null,
 	Backup_Send: null,
 };
@@ -16,13 +17,15 @@ var BotNeckConfig = {
 const { remote, BrowserWindow } = require('electron');
 const fs = require("fs");
 
+BotNeckPlugin.config = "BotNeck";
+
 BotNeckPlugin.prototype.onMessage = function() {};
 BotNeckPlugin.prototype.onSwitch = function() {};
 BotNeckPlugin.prototype.observer = function(e) {};
 
 BotNeckPlugin.prototype.getSettingsPanel = function()
 {
-    return "";
+	return "";
 };
 BotNeckPlugin.prototype.getName = function()
 {
@@ -118,16 +121,11 @@ BotNeckPlugin.prototype.start = function()
 						type: "rich",
 						description: "Error executing command " + command + "!",
 						color: 0xff6e00,
-						fields: [
-							{
-								name: "Error",
-								value: e,
-							},
-						],
 					}
 
 					delete msg["content"];
 					msg["embed"] = emb;
+					BotNeckAPI.LogError("Error executing command " + command, e);
 				}
 				send.call(this, JSON.stringify(msg));
 				return;
@@ -146,15 +144,18 @@ BotNeckPlugin.prototype.load = function()
 {
 	BotNeckData.bdPath = (process.platform == 'win32' ? process.env.APPDATA : process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : '/var/local') + '/BetterDiscord/';
 	BotNeckData.botneckModules = BotNeckData.bdPath + "plugins/BotNeck_Modules"
+	BotNeckData.botneckConfig = BotNeckData.bdPath + "plugins/" + BotNeckPlugin.config + ".json";
 	BotNeckData.eWindow = remote.getCurrentWindow();
 
 	if(!fs.existsSync(BotNeckData.botneckModules))
 		fs.mkdirSync(BotNeckData.botneckModules);
 	BotNeckAPI.LoadModules();
+	BotNeckAPI.LoadConfig();
 };
 
 BotNeckPlugin.prototype.unload = function()
 {
+	BotNeckAPI.SaveConfig();
 	BotNeckAPI.UnloadModules();
 };
 // ------------------------------------------------------ API ------------------------------------------------------------------ //
@@ -194,6 +195,45 @@ BotNeckAPI.UnloadModules = function()
 {
 	BotNeckModules = {};
 };
+BotNeckAPI.LoadConfig = function()
+{
+	if(!fs.existsSync(BotNeckData.botneckConfig))
+		return;
+
+	let conf = fs.readFileSync(BotNeckData.botneckConfig, "utf-8");
+	let cJson = JSON.parse(conf);
+
+	for(let key in cJson)
+	{
+		if(!BotNeckModules.hasOwnProperty(key) && key != "BotNeck")
+			continue;
+		if(key != "BotNeck")
+			if(typeof(BotNeckModules[key].settings) == "undefined")
+				continue;
+
+		for(let c in cJson[key])
+		{
+			if(key == "BotNeck")
+				BotNeckConfig[c] = cJson[key][c];
+			else
+				BotNeckModules[key].settings[c] = cJson[key][c];
+		}
+	}
+	BotNeckAPI.Log("Configuration loaded!");
+}
+BotNeckAPI.SaveConfig = function()
+{
+	if(fs.existsSync(BotNeckData.botneckConfig))
+		fs.unlinkSync(BotNeckData.botneckConfig);
+
+	let cfg = {};
+
+	cfg["BotNeck"] = BotNeckConfig;
+	for(let mod in BotNeckModules)
+		if(typeof(BotNeckModules[mod].settings) != "undefined")
+			cfg[mod] = BotNeckModules[mod].settings;
+	fs.writeFileSync(BotNeckData.botneckConfig, JSON.stringify(cfg))
+}
 
 BotNeckAPI.GetCurrentServerID = function()
 {
@@ -210,4 +250,37 @@ BotNeckAPI.GetDiscordToken = function() // WARNING: This uses an exploit in the 
 
 	document.body.removeChild(elem);
 	return token;
+};
+
+BotNeckAPI.GetParameterValueFromText = function(text, parameterKey)
+{
+	let i = text.indexOf(parameterKey + "=");
+	if(i === -1)
+		return null;
+
+	let txt = text.substring(i + (parameterKey + "=").length);
+	let value = "";
+
+	if(txt.startsWith('"')) // Safe to assume it is a string
+	{
+		let ind = 1; // 1 to skip the "
+
+		while(ind < txt.length && txt[ind] != '"') // Loop until we hit the end of the text or until we hit a "
+		{
+			value += txt[ind];
+			ind++;
+		}
+	}
+	else // Not a string
+	{
+		let ind = 0; // Start from 0
+
+		while(ind < txt.length && txt[ind] != ' ') // Loop until we hit the end of the text or until we hit a space
+		{
+			value += txt[ind];
+			ind++;
+		}
+	}
+
+	return value;
 };

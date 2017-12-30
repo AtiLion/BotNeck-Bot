@@ -20,6 +20,8 @@ BotNeck Bot offers lots of already built in commands such as:
  - Text to regional text
  - Easy module/command reloader
  - Roll a dice
+ - Backup/Save the chat
+ - Create custom embeds(does not support fields)
 
 It also has features good for developers such as:
 
@@ -27,6 +29,7 @@ It also has features good for developers such as:
  - Quick error display in message
  - Easy to use message editor
  - Basic API(Not finished)
+ - Integrated and easy to use configuration
 
 BotNeck is also special as it uses a send hook to capture the message before it is ever sent to the server. That means the message is never edited or deleted from the server and is instead captured, modified and sent to the server. This will in turn prevent spamming of messages for users on the server.
 I am also working on adding more features and commands as time goes on.
@@ -44,6 +47,9 @@ API(Not finished)
  - BotNeckAPI.GetCurrentServerID() = This will get the ID of the currently viewed server
  - BotNeckAPI.GetCurrentChannelID() = This will get the ID of the currently viewed channel
  - BotNeckAPI.GetDiscordToken() = This will get the discord token of the user(WARNING: Try to avoid the use of this as much as possible!)
+ - BotNeckAPI.LoadConfig() = This loads the integrated configuration for BotNeck and applys the config to all loaded modules
+ - BotNeckAPI.SaveConfig() = This saves the configurations of all the loaded modules and BotNeck itself
+ - BotNeckAPI.GetParameterValueFromText(text, parameter key) = This gets the parameter value from a parameter key(example: parameter_key="Test" if that is your text then setting the parameter key as parameter_key will return Test)
 
 
 ----------
