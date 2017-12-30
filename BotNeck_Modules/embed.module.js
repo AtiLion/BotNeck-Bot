@@ -135,7 +135,7 @@ embed.prototype.execute = function(msg, args) // Warning: Extremely eye killing 
   }
   if(embd.timestamp == "now")
     embd.timestamp = new Date().toISOString();
-  else
+  else if(embd.timestamp != "")
     embd.timestamp = new Date(embd.timestamp).toISOString();
   let final = {};
   for(let e in embd)
