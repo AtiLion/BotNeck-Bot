@@ -45,7 +45,7 @@ embed.prototype.execute = function(msg, args) // Warning: Extremely eye killing 
 {
   let text = args.join(" ");
   let ld = BotNeckAPI.GetParameterValueFromText(text, "load");
-  let embd = $.extend({}, (ld != null && this.settings.hasOwnProperty(ld) ? this.settings[ld] : this.settings.default)) // Clone array
+  let embd = JSON.parse(JSON.stringify(ld != null && this.settings.hasOwnProperty(ld) ? this.settings[ld] : this.settings.default)) // Clone array
   let emb = {};
 
   let name = "";
@@ -134,9 +134,8 @@ embed.prototype.execute = function(msg, args) // Warning: Extremely eye killing 
 
   if(emb.hasOwnProperty("save"))
   {
-    this.settings[emb.save] = $.extend({}, embd);
+    this.settings[emb.save] = JSON.parse(JSON.stringify(embd));
     BotNeckAPI.SaveConfig();
-    delete emb["save"];
   }
   if(embd.timestamp == "now")
     embd.timestamp = new Date().toISOString();
