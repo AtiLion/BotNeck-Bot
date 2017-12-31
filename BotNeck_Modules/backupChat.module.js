@@ -39,7 +39,6 @@ backupChat.prototype.execute = function(msg, args)
         fs.unlinkSync(chatBackup + "/" + args[1] + ".log");
       fs.writeFileSync(chatBackup + "/" + args[1] + ".log", save);
     },
-    async: false,
   });
 
   let emb = {

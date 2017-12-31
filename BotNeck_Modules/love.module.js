@@ -1,23 +1,13 @@
 var love = function() {};
 
 love.prototype.command = "love";
-love.prototype.minArgs = 1;
+love.prototype.minArgs = 2;
 love.prototype.help = "Calculates the love between 2 users <3. Usage: love <user1> [user2]";
 
 love.prototype.execute = function(msg, args)
 {
-	if(args.length < 1)
-	{
-		msg.content = "Please select a target!";
-		return;
-	}
-
-	let user1 = BdApi.getUserNameById(args[0].replace("<", "").replace("!", "").replace(">", "").replace("@", ""));
-	let user2 = "";
-
-	if(args.length > 1)
-		user2 = BdApi.getUserNameById(args[1].replace("<", "").replace("!", "").replace(">", "").replace("@", ""));
-
+	let user1 = args[0];
+	let user2 = args[1];
 	let txt = user1 + user2;
 	let process_num = "";
 	let processed_num = "";
@@ -35,7 +25,7 @@ love.prototype.execute = function(msg, args)
 	let emb = {
 		title: "Love Calculator",
 		type: "rich",
-		description: "How much does " + user1 + " love " + (args.length > 1 ? user2 : "me") + "?",
+		description: "How much does " + user1 + " love " + user2 + "?",
 		color: 0x0061ff,
 		fields: [
 			{

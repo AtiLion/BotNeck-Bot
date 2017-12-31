@@ -3,46 +3,49 @@ var embed = function() {};
 embed.prototype.command = "embed";
 embed.prototype.help = "Sends an embeded message based on paramaters. Usage: embed title='whatever' description='whatever'(Spaces are required between paramaters)";
 embed.prototype.settings = {
-  title: "BotNeck Embed",
-  type: "rich",
-  description: "A simple BotNeck Embed",
-  color: 0x0061ff,
-  url: "https://github.com/AtiLion/BotNeck-Bot",
-  timestamp: "now",
-  footer: {
-    text: "Simple footer in embed",
-    icon_url: "",
-  },
-  image: {
-    url: "",
-    width: 0,
-    height: 0,
-  },
-  thumbnail: {
-    url: "",
-    width: 0,
-    height: 0,
-  },
-  video: {
-    url: "",
-    width: 0,
-    height: 0,
-  },
-  provider: {
-    name: "",
-    url: "",
-  },
-  author: {
-    name: "AtiLion",
-    url: "https://github.com/AtiLion",
-    icon_url: "https://avatars3.githubusercontent.com/u/20825809?s=460&v=4",
+  default: {
+    title: "BotNeck Embed",
+    type: "rich",
+    description: "A simple BotNeck Embed",
+    color: 0x0061ff,
+    url: "https://github.com/AtiLion/BotNeck-Bot",
+    timestamp: "now",
+    footer: {
+      text: "Simple footer in embed",
+      icon_url: "",
+    },
+    image: {
+      url: "",
+      width: 0,
+      height: 0,
+    },
+    thumbnail: {
+      url: "",
+      width: 0,
+      height: 0,
+    },
+    video: {
+      url: "",
+      width: 0,
+      height: 0,
+    },
+    provider: {
+      name: "",
+      url: "",
+    },
+    author: {
+      name: "AtiLion",
+      url: "https://github.com/AtiLion",
+      icon_url: "https://avatars3.githubusercontent.com/u/20825809?s=460&v=4",
+    },
   },
 };
 
 embed.prototype.execute = function(msg, args) // Warning: Extremely eye killing code. Do not read if sensitive to improper code formatting!
 {
-  let embd = $.extend({}, this.settings) // Clone array
   let text = args.join(" ");
+  let ld = BotNeckAPI.GetParameterValueFromText(text, "load");
+  let embd = $.extend({}, (ld != null && this.settings.hasOwnProperty(ld) ? this.settings[ld] : this.settings.default)) // Clone array
   let emb = {};
 
   let name = "";
@@ -76,6 +79,11 @@ embed.prototype.execute = function(msg, args) // Warning: Extremely eye killing 
         value += text[i];
       }
     }
+  }
+  if(value == "" && name != "")
+  {
+    value = name;
+    name = "description";
   }
   emb[name] = (isNaN(value) ? value : Number(value));
 
@@ -126,11 +134,8 @@ embed.prototype.execute = function(msg, args) // Warning: Extremely eye killing 
 
   if(emb.hasOwnProperty("save"))
   {
-    if(emb.save.toLowerCase() == "yes")
-    {
-      this.settings = $.extend({}, embd);
-      BotNeckAPI.SaveConfig();
-    }
+    this.settings[emb.save] = $.extend({}, embd);
+    BotNeckAPI.SaveConfig();
     delete emb["save"];
   }
   if(embd.timestamp == "now")

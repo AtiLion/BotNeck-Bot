@@ -22,6 +22,7 @@ BotNeck Bot offers lots of already built in commands such as:
  - Roll a dice
  - Backup/Save the chat
  - Create custom embeds(does not support fields)
+ - MyAnimeList integration in nice embeds
 
 It also has features good for developers such as:
 
@@ -30,6 +31,7 @@ It also has features good for developers such as:
  - Easy to use message editor
  - Basic API(Not finished)
  - Integrated and easy to use configuration
+ - Storing previous message ID for easy editing and async messages
 
 BotNeck is also special as it uses a send hook to capture the message before it is ever sent to the server. That means the message is never edited or deleted from the server and is instead captured, modified and sent to the server. This will in turn prevent spamming of messages for users on the server.
 I am also working on adding more features and commands as time goes on.
@@ -50,6 +52,8 @@ API(Not finished)
  - BotNeckAPI.LoadConfig() = This loads the integrated configuration for BotNeck and applys the config to all loaded modules
  - BotNeckAPI.SaveConfig() = This saves the configurations of all the loaded modules and BotNeck itself
  - BotNeckAPI.GetParameterValueFromText(text, parameter key) = This gets the parameter value from a parameter key(example: parameter_key="Test" if that is your text then setting the parameter key as parameter_key will return Test)
+ - BotNeckAPI.GetLastMessageID() = This returns the last message ID that was sent by the user
+ - BotNeckAPI.GetParametersFromText(text) = This gets all the parameters from a text and returns them as a dictionary/object
 
 
 ----------

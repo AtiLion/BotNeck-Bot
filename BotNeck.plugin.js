@@ -9,6 +9,7 @@ var BotNeckData = {
 	botneckConfig: "",
 	eWindow: null,
 	Backup_Send: null,
+	LastMsgID: "",
 };
 var BotNeckConfig = {
 	commandPrefix: "->",
@@ -65,7 +66,24 @@ BotNeckPlugin.prototype.start = function()
 
 				if(!msg.hasOwnProperty("content") || !msg.hasOwnProperty("nonce") || !msg.hasOwnProperty("tts"))
 				{
-					send.call(this, JSON.stringify(msg));
+					send.call(this, data);
+					if(msg.hasOwnProperty("nonce") && msg.hasOwnProperty("tts"))
+					{
+						this.onload = function()
+						{
+							try
+							{
+								resp = JSON.parse(this.responseText);
+
+								if(resp.hasOwnProperty("id"))
+									BotNeckData.LastMsgID = resp.id;
+							}
+							catch (e)
+							{
+								// Meh don't worry about it
+							}
+						}
+					}
 					return;
 				}
 				if(typeof(msg.content) != "string")
@@ -75,6 +93,20 @@ BotNeckPlugin.prototype.start = function()
 				}
 				if(!msg.content.startsWith(BotNeckConfig.commandPrefix))
 				{
+					this.onload = function()
+					{
+						try
+						{
+							resp = JSON.parse(this.responseText);
+
+							if(resp.hasOwnProperty("id"))
+								BotNeckData.LastMsgID = resp.id;
+						}
+						catch (e)
+						{
+							// Meh don't worry about it
+						}
+					}
 					send.call(this, JSON.stringify(msg));
 					return;
 				}
@@ -135,6 +167,20 @@ BotNeckPlugin.prototype.start = function()
 					delete msg["content"];
 					msg["embed"] = emb;
 					BotNeckAPI.LogError("Error executing command " + command, e);
+				}
+				this.onload = function()
+				{
+					try
+					{
+						resp = JSON.parse(this.responseText);
+
+						if(resp.hasOwnProperty("id"))
+							BotNeckData.LastMsgID = resp.id;
+					}
+					catch (e)
+					{
+						// Meh don't worry about it
+					}
 				}
 				send.call(this, JSON.stringify(msg));
 				return;
@@ -261,6 +307,10 @@ BotNeckAPI.GetDiscordToken = function() // WARNING: This uses an exploit in the 
 	document.body.removeChild(elem);
 	return token;
 };
+BotNeckAPI.GetLastMessageID = function()
+{
+	return BotNeckData.LastMsgID;
+}
 
 BotNeckAPI.GetParameterValueFromText = function(text, parameterKey)
 {
@@ -294,3 +344,44 @@ BotNeckAPI.GetParameterValueFromText = function(text, parameterKey)
 
 	return value;
 };
+BotNeckAPI.GetParametersFromText = function(text)
+{
+	let params = {};
+  let name = "";
+  let value = "";
+  let onValue = false;
+  let isText = false;
+
+  for(let i in text)
+  {
+    if(!onValue)
+    {
+      if(text[i] == "=")
+        onValue = true;
+      else
+        name += text[i];
+    }
+    else
+    {
+      if(text[i] == '"')
+        isText = !isText;
+      else if(text[i] == " " && !isText)
+      {
+        onValue = false;
+        isText = false;
+
+        params[name] = (isNaN(value) ? value : Number(value));
+        name = "";
+        value = "";
+      }
+      else
+      {
+        value += text[i];
+      }
+    }
+  }
+	if(value != "")
+  	params[name] = (isNaN(value) ? value : Number(value));
+
+	return params;
+}

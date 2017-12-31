@@ -19,7 +19,7 @@ regional.regionals = {'a': ':regional_indicator_a:', 'b': ':regional_indicator_b
 												'y': ':regional_indicator_y:', 'z': ':regional_indicator_z:',
 												'0': '0⃣', '1': '1⃣', '2': '2⃣', '3': '3⃣',
 												'4': '4⃣', '5': '5⃣', '6': '6⃣', '7': '7⃣', '8': '8⃣', '9': '9⃣', '!': '\u2757',
-												'?': '\u2753'}
+												'?': '\u2753', ' ': '  '}
 
 regional.prototype.command = "regional";
 regional.prototype.minArgs = 1;
