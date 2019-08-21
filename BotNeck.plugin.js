@@ -5,7 +5,11 @@ const path = require("path");
 
 const sendRequest = XMLHttpRequest.prototype.send;
 const setRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+const openRequest = XMLHttpRequest.prototype.open;
 
+const config = {
+	"prefix": "->"
+}
 const protectedObject = { // Protected, do not expose to modules
 	"token": null,
 	"usedKeys": [],
@@ -51,6 +55,37 @@ class BotNeck {
 		this.modulesPath = path.join(window.ContentManager.pluginsFolder, "BotNeckModules");
 		this.botneckConfig = path.join(window.bdConfig.dataPath, "BotNeck.config.json");
 
+		// Load config
+		if(fs.existsSync(this.botneckConfig)) {
+			fs.readFile(this.botneckConfig, (err, data) => {
+				if(err) {
+					console.error("Error while reading configuration");
+					console.error(err);
+					return;
+				}
+
+				try {
+					let parsed = JSON.parse(data);
+
+					for(let key in config) {
+						if(parsed[key])
+							config[key] = parsed[key];
+					}
+				} catch(err) {
+					console.error("Error while parsing configuration file");
+					console.error(err);
+					return;
+				}
+			});
+		} else {
+			fs.writeFile(this.botneckConfig, JSON.stringify(config), err => {
+				if(err) {
+					console.error("Failed to save configuration file");
+					console.error(err);
+				}
+			});
+		}
+
 		// Load modules
 		if(!fs.existsSync(this.modulesPath))
 			fs.mkdirSync(this.modulesPath);
@@ -90,20 +125,29 @@ class BotNeck {
 
 	start() {
 		// Setup overrides
+		XMLHttpRequest.prototype.open = function() {
+			let result = openRequest.apply(this, [].slice.call(arguments));
+
+			// Hook onload
+			this.onload = function() { BotNeckInternals.getMessageId(this.responseText, this["automated"]); }
+
+			return result;
+		}
 		XMLHttpRequest.prototype.setRequestHeader = function(header, value) {
 			if(header.toLowerCase() === "authorization")
 				protectedObject["token"] = value;
 
-			setRequestHeader.call(this, [header, value]);
+			return setRequestHeader.call(this, header, value);
 		}
 		XMLHttpRequest.prototype.send = function(data) {
-			sendRequest.call(this, data);
+			return sendRequest.call(this, BotNeckInternals.analyzeData(data));
 		}
 	}
 	stop() {
 		// Restore overrides
 		XMLHttpRequest.prototype.setRequestHeader = setRequestHeader;
 		XMLHttpRequest.prototype.send = sendRequest;
+		XMLHttpRequest.prototype.open = openRequest;
 	}
 }
 class BotNeckAPI {
@@ -113,6 +157,41 @@ class BotNeckAPI {
 	static getLastBotMessageId() { return protectedObject["lastBotMessageId"]; }
 }
 class BotNeckInternals {
+	static getMessageId(response, isAutomated) {
+		try {
+			parsed = JSON.parse(response);
+
+			if(parsed["id"]) {
+				if(isAutomated)
+					protectedObject["lastBotMessageId"] = parsed["id"];
+				else
+					protectedObject["lastUserMessageId"] = parsed["id"];
+			}
+		} catch(err) {}
+	}
+	static analyzeData(data) {
+		let parsed = BotNeckInternals.parseMessage(data);
+		if(parsed == null)
+			return data;
+
+		if(parsed["content"].startsWith(config.prefix)) {
+
+		}
+	}
+	static parseMessage(message) {
+		try {
+			let parsed = JSON.parse(message);
+
+			if ((!parsed["content"] || typeof parsed["content"] !== "string") || 
+				(!parsed["nonce"] || typeof parsed["nonce"] !== "string") || 
+				(!parsed["tts"] || typeof parsed["tts"] !== "boolean"))
+					return null; // Invalid message structure
+
+			return parsed;
+		} catch(err) {
+			return null;
+		}
+	}
 }
 class BotNeckSandBox {
 	constructor() {
