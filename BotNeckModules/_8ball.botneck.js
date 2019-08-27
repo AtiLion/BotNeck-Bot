@@ -9,11 +9,17 @@ class _8ball {
 	}
 
 	execute(message, args) {
-		let question = "";
+		// Init
+		delete message["content"];
 
-		for(let i in args)
-			question += args[i] + " ";
+		// Validate number of args
+		if(BotNeckAPI.getArgumentNumber(args) < 1)
+			return message["embed"] = BotNeckAPI.generateError("You need at least 1 argument for this command!");
 
+		// Get input
+		let input = BotNeckAPI.getArgumentsAsString(args);
+
+		// Execute
 		message["embed"] = {
 			title: "Magic 8Ball",
 			type: "rich",
@@ -22,7 +28,7 @@ class _8ball {
 			fields: [
 				{
 					name: "Question",
-					value: question,
+					value: input,
 				},
 				{
 					name: "Answer",
@@ -30,6 +36,5 @@ class _8ball {
 				},
 			]
 		}
-		delete message["content"];
 	}
 }

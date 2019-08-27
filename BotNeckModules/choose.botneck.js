@@ -7,12 +7,15 @@ class choose {
 	}
 
 	execute(message, args) {
-		// Get input
-		let input = "";
-		for(let i in args)
-			input += args[i] + " ";
+		// Init
+		delete message["content"];
 
-		// Get choices
+		// Validate number of args
+		if(BotNeckAPI.getArgumentNumber(args) < 2)
+			return message["embed"] = BotNeckAPI.generateError("You need at least 2 arguments for this command!");
+
+		// Setup inputs
+		let input = BotNeckAPI.getArgumentsAsString(args);
 		let choices = input.split(",");
 
 		// Execute
@@ -28,6 +31,5 @@ class choose {
 				}
 			]
 		}
-		delete message["content"];
 	}
 }

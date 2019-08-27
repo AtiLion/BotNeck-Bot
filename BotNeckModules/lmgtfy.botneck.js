@@ -9,12 +9,11 @@ class lmgtfy {
 	}
 
 	execute(message, args) {
-		// Get input
-		let input = "";
-		for(let i in args)
-			input += args[i] + " ";
+		// Validate number of args
+		if(BotNeckAPI.getArgumentNumber(args) < 1)
+			return message["embed"] = BotNeckAPI.generateError("You need at least 1 argument for this command!");
 
 		// Generate link
-		message.content = this.url + encodeURI(input);
+		message.content = this.url + encodeURI(BotNeckAPI.getArgumentsAsString(args));
 	}
 }

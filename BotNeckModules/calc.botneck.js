@@ -7,11 +7,17 @@ class calc {
 	}
 
 	execute(message, args) {
-		let formula = "";
+		// Init
+		delete message["content"];
 
-		for(let i in args)
-			formula += args[i] + " ";
+		// Validate number of args
+		if(BotNeckAPI.getArgumentNumber(args) < 1)
+			return message["embed"] = BotNeckAPI.generateError("You need at least 1 argument for this command!");
 
+		// Get input
+		let input = BotNeckAPI.getArgumentsAsString(args);
+
+		// Execute
 		message["embed"] = {
 			title: "Calculator",
 			type: "rich",
@@ -20,14 +26,13 @@ class calc {
 			fields: [
 				{
 					name: "Calculation",
-					value: formula,
+					value: input,
 				},
 				{
 					name: "Result",
-					value: eval(formula),
+					value: eval(input),
 				},
 			]
 		}
-		delete message["content"];
 	}
 }

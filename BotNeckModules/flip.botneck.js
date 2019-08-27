@@ -10,15 +10,15 @@ class flip {
 	}
 
 	execute(message, args) {
-		// Get input
-		let input = "";
-		for(let i in args)
-			input += args[i] + " ";
+		// Validate number of args
+		if(BotNeckAPI.getArgumentNumber(args) < 1)
+			return message["embed"] = BotNeckAPI.generateError("You need at least 1 arguments for this command!");
 
-		// Empty content
-		message.content = "";
+		// Get input
+		let input = BotNeckAPI.getArgumentsAsString(args);
 
 		// Flip
+		message.content = "";
 		for(let i = 0; i < input.length; i++) {
 			let index = this.char_list.indexOf(input[i]);
 

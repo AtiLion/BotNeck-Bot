@@ -33,16 +33,6 @@ function makeKey() {
 		return makeKey();
 	return result;
 }
-Function.prototype.clone = function() {
-    var that = this;
-    var temp = function temporary() { return that.apply(this, arguments); };
-    for(var key in this) {
-        if (this.hasOwnProperty(key)) {
-            temp[key] = this[key];
-        }
-    }
-    return temp;
-};
 
 class BotNeck {
 	getName() { return "BotNeck Bot"; }
@@ -52,7 +42,7 @@ class BotNeck {
 
 	load() {
 		// Get paths
-		this.modulesPath = BotNeckInternals.getModulesPath();
+		this.modulesPath = BotNeckAPI.getModulesPath();
 		this.botneckConfig = path.join(window.bdConfig.dataPath, "BotNeck.config.json");
 
 		// Load config
@@ -111,7 +101,7 @@ class BotNeck {
 			return result;
 		}
 		XMLHttpRequest.prototype.setRequestHeader = function(header, value) {
-			if(header.toLowerCase() === "authorization" && this["automated"])
+			if(header.toLowerCase() === "authorization" && !this["automated"])
 				protectedObject["token"] = value;
 
 			return setRequestHeader.call(this, header, value);
@@ -132,20 +122,44 @@ class BotNeckAPI {
 	static getCurrentChannelId() { return window.location.pathname.split("/")[3]; }
 	static getLastUserMessageId() { return protectedObject["lastUserMessageId"]; }
 	static getLastBotMessageId() { return protectedObject["lastBotMessageId"]; }
+	static getModulesPath() { return path.join(window.ContentManager.pluginsFolder, "BotNeckModules"); }
 
-	static sendAuthRequest(req, apiKey, data) {
+	static setAuthHeader(req, apiKey) {
 		if(!modules[apiKey] || !modules[apiKey].permissions.includes("authorized_request"))
 			return false;
+
 		req["automated"] = true;
 		req.setRequestHeader("Authorization", protectedObject["token"]);
-
-		req.send(data);
 		return true;
+	}
+
+	static generateError(error) {
+		return {
+			title: "BotNeck Error",
+			type: "rich",
+			description: error,
+			color: 0xff6e00
+		}
+	}
+	static getArgumentNumber(args) {
+		if(typeof args !== "object")
+			return 0;
+		let counter = 0;
+
+		for(let key in args)
+			if(!isNaN(key))
+				counter++;
+		return counter;
+	}
+	static getArgumentsAsString(args) {
+		let input = "";
+
+		for(let i in args)
+			input += args[i] + " ";
+		return input;
 	}
 }
 class BotNeckInternals {
-	static getModulesPath() { return path.join(window.ContentManager.pluginsFolder, "BotNeckModules"); }
-
 	static getMessageId(response, isAutomated) {
 		try {
 			parsed = JSON.parse(response);
@@ -183,7 +197,7 @@ class BotNeckInternals {
 				delete parsed["content"];
 			}
 			else {
-				parsed["embed"] = BotNeckInternals.generateError(`Command *"${command}"* not found! Use the *help* command to see all commands!`);
+				parsed["embed"] = BotNeckAPI.generateError(`Command *"${command}"* not found! Use the *help* command to see all commands!`);
 				delete parsed["content"];
 			}
 			data = JSON.stringify(parsed);
@@ -278,14 +292,6 @@ class BotNeckInternals {
 		return Number(value);
 	}
 
-	static generateError(error) {
-		return {
-			title: "BotNeck Error",
-			type: "rich",
-			description: error,
-			color: 0xff6e00
-		}
-	}
 	static generateHelp(args) {
 		if(!args[0]) { // No command provided
 			let help = [
@@ -332,7 +338,7 @@ class BotNeckInternals {
 			let mod = BotNeckInternals.getModuleByCommand(args[0]);
 
 			if(!mod)
-				return BotNeckInternals.generateError(`Invalid command provided in help! *"${args[0]}"* does not exists!`);
+				return BotNeckAPI.generateError(`Invalid command provided in help! *"${args[0]}"* does not exists!`);
 			return {
 				title: "BotNeck Help",
 				type: "rich",
@@ -388,7 +394,7 @@ class BotNeckInternals {
 			let mod = BotNeckInternals.getModuleByCommand(args[0]);
 
 			if(!mod)
-				return BotNeckInternals.generateError(`Invalid command provided in usage! *"${args[0]}"* does not exists!`);
+				return BotNeckAPI.generateError(`Invalid command provided in usage! *"${args[0]}"* does not exists!`);
 			return {
 				title: "BotNeck Usage",
 				type: "rich",
@@ -419,7 +425,7 @@ class BotNeckInternals {
 		let mod = BotNeckInternals.getModuleByCommand(args[0]);
 
 		if(!mod)
-			return BotNeckInternals.generateError(`Invalid command provided in reload! *"${args[0]}"* does not exists!`);
+			return BotNeckAPI.generateError(`Invalid command provided in reload! *"${args[0]}"* does not exists!`);
 		BotNeckInternals.loadModule(mod.name, err => {
 			if(err) {
 				console.error("Error while attempting to reload module ", name);
@@ -445,7 +451,7 @@ class BotNeckInternals {
 	}
 
 	static loadAllModules(func) {
-		fs.readdir(BotNeckInternals.getModulesPath(), (err, files) => {
+		fs.readdir(BotNeckAPI.getModulesPath(), (err, files) => {
 			if(err)
 				return func(err);
 
@@ -469,7 +475,7 @@ class BotNeckInternals {
 		});
 	}
 	static loadModule(name, func) {
-		let file = path.join(BotNeckInternals.getModulesPath(), name + ".botneck.js");
+		let file = path.join(BotNeckAPI.getModulesPath(), name + ".botneck.js");
 
 		if(!fs.existsSync(file))
 			return func("No such file/module found!");
