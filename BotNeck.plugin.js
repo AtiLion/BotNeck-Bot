@@ -98,40 +98,6 @@ class BotNeck {
 
 			console.log("All modules loaded!");
 		});
-		/*fs.readdir(this.modulesPath, (err, files) => {
-			if(err) {
-				console.error("Error while getting modules!");
-				console.error(err);
-				return;
-			}
-
-			for(let filename of files) {
-				if(filename.indexOf(".botneck.js") < 0)
-					continue;
-				let file = path.join(this.modulesPath, filename);
-				let name = filename.slice(0, -(".botneck.js".length));
-
-				// Sandbox and execute
-				fs.readFile(file, (err, data) => {
-					if(err) {
-						console.error("Error while reading file", filename);
-						console.error(err);
-						return;
-					}
-
-					let apiKey = makeKey();
-					let sandbox = new BotNeckSandBox();
-					sandbox.name = name;
-					sandbox.key = apiKey;
-
-					sandbox.build(data);
-
-					// Push module
-					modules[apiKey] = new BotNeckModule(sandbox);
-					console.log("Loaded module", name);
-				});
-			}
-		});*/
 	}
 
 	start() {
@@ -145,7 +111,7 @@ class BotNeck {
 			return result;
 		}
 		XMLHttpRequest.prototype.setRequestHeader = function(header, value) {
-			if(header.toLowerCase() === "authorization")
+			if(header.toLowerCase() === "authorization" && this["automated"])
 				protectedObject["token"] = value;
 
 			return setRequestHeader.call(this, header, value);
@@ -166,6 +132,16 @@ class BotNeckAPI {
 	static getCurrentChannelId() { return window.location.pathname.split("/")[3]; }
 	static getLastUserMessageId() { return protectedObject["lastUserMessageId"]; }
 	static getLastBotMessageId() { return protectedObject["lastBotMessageId"]; }
+
+	static sendAuthRequest(req, apiKey, data) {
+		if(!modules[apiKey] || !modules[apiKey].permissions.includes("authorized_request"))
+			return false;
+		req["automated"] = true;
+		req.setRequestHeader("Authorization", protectedObject["token"]);
+
+		req.send(data);
+		return true;
+	}
 }
 class BotNeckInternals {
 	static getModulesPath() { return path.join(window.ContentManager.pluginsFolder, "BotNeckModules"); }
@@ -318,7 +294,7 @@ class BotNeckInternals {
 				"reload - Reloads all the modules or one specific module"
 			]
 			for(let mod of Object.values(modules))
-				help.push(`${mod.command} - ${mod.sandbox.eval("this.module.description") ? mod.sandbox.eval("this.module.description") : "No description!"}`);
+				help.push(`${mod.command} - ${mod.module.description ? mod.module.description : "No description!"}`);
 
 			return {
 				title: "BotNeck Help",
@@ -360,7 +336,7 @@ class BotNeckInternals {
 			return {
 				title: "BotNeck Help",
 				type: "rich",
-				description: `${mod.command} - ${mod.sandbox.eval("this.module.description") ? mod.sandbox.eval("this.module.description") : "No description!"}`,
+				description: `${mod.command} - ${mod.module.description ? mod.module.description : "No description!"}`,
 				color: 0x0061ff
 			}
 		}
@@ -374,7 +350,7 @@ class BotNeckInternals {
 			]
 
 			for(let mod of Object.values(modules))
-				usage.push(`${mod.command} - ${mod.sandbox.eval("this.module.usage") ? mod.sandbox.eval("this.module.usage") : "No usage!"}`)
+				usage.push(`${mod.command} - ${mod.module.usage ? mod.module.usage : "No usage!"}`)
 
 			return {
 				title: "BotNeck Usage",
@@ -416,7 +392,7 @@ class BotNeckInternals {
 			return {
 				title: "BotNeck Usage",
 				type: "rich",
-				description: `${mod.command} - ${mod.sandbox.eval("this.module.usage") ? mod.sandbox.eval("this.module.usage") : "No usage!"}`,
+				description: `${mod.command} - ${mod.module.usage ? mod.module.usage : "No usage!"}`,
 				color: 0x0061ff
 			}
 		}
@@ -509,18 +485,20 @@ class BotNeckInternals {
 		fs.readFile(file, (err, data) => {
 			if(err)
 				return func(err);
-
 			let apiKey = makeKey();
-			let sandbox = new BotNeckSandBox();
-			sandbox.name = name;
-			sandbox.key = apiKey;
-
-			sandbox.build(data);
 
 			// Push module
-			modules[apiKey] = new BotNeckModule(sandbox);
+			BotNeckSandBox.build(data, apiKey, name);
 			func();
 		});
+	}
+	static addLoadedModule(sandbox) {
+		// Run checks
+		if(!sandbox.module.command || !sandbox.module.execute)
+			return false;
+
+		modules[sandbox.key] = new BotNeckModule(sandbox);
+		return true;
 	}
 }
 class BotNeckSandBox {
@@ -530,50 +508,47 @@ class BotNeckSandBox {
 		this.key = null;
 	}
 
-	build(code) {
+	static build(code, apiKey, name) {
 		try {
-			// Should prevent people from overriding stuff we don't want them to override
-			let XMLHttpRequest = XMLHttpRequest.clone();
-			let BotNeckAPI = BotNeckAPI.clone();
-			let API = BotNeckAPI;
-			let BotNeckInternals = undefined;
-			let APIKey = this.key;
+			// Setup generated variables
+			let generatedCode = "(function(){";
 
-			eval(code);
+			// Add protections
+			generatedCode += `let APIKey = "${apiKey}";`;
 
-			// Check if valid
-			if(eval("typeof " + this.name) !== "function") {
-				console.error("The provided module name is undefined or invalid!", this.name);
-				return;
-			}
-			if(eval("typeof " + this.name + ".prototype.permissions") !== "array" ||
-			   eval("typeof " + this.name + ".prototype.execute") !== "function" ||
-			   eval("typeof " + this.name + ".prototype.command") !== "string") {
-				console.error("Invalid structure of", this.name);
-				return;
-			}
+			// Add actual code
+			generatedCode += "\n" + code + "\n";
 
-			// Set data
-			this.module = eval(`new ${this.name}()`);
+			// Add sandbox execution
+			generatedCode += `BotNeckSandBox.setup("${name}", "${apiKey}", new ${name}());`;
+
+			// EOF
+			generatedCode += "})()";
+
+			// Execute
+			eval(generatedCode);
 		} catch(err) {
-			console.error("Failed to load module", this.name);
+			console.error("Failed to load module", name);
 			console.error(err);
 		}
 	}
+	static setup(name, apiKey, mod) {
+		let sandbox = new BotNeckSandBox();
+		sandbox.name = name;
+		sandbox.key = apiKey;
+		sandbox.module = mod;
+
+		if(BotNeckInternals.addLoadedModule(sandbox))
+			console.log(`Added module ${name}!`);
+		else
+			console.log(`Failed to add module ${name}!`);
+	}
+
 	execute(message, args) {
 		try {
 			return this.module.execute(message, args);
 		} catch(err) {
 			console.error("Failed to execute module", this.name);
-			console.error(err);
-			return null;
-		}
-	}
-	eval(code) {
-		try {
-			return eval(code);
-		} catch(err) {
-			console.error("Failed to run eval on module", this.name);
 			console.error(err);
 			return null;
 		}
