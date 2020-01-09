@@ -21,6 +21,7 @@ BotNeck Bot offers lots of already built in commands such as:
  - Easy module/command reloader
  - Roll a dice
  - Backup/Save the chat
+ - Browse MyAnimeList in embeds
 
 BotNeck is also special as it uses a send hook to capture the message before it is ever sent to the server. That means the message is never edited or deleted from the server and is instead captured, modified and sent to the server. This will in turn prevent spamming of messages for users on the server.
 I am also working on adding more features and commands as time goes on.
@@ -40,6 +41,7 @@ API
  - BotNeckAPI.generateError(error) - Generates an error embed with the specified message and returns it
  - BotNeckAPI.getArgumentNumber(args) - Gets the number of generic arguments specified
  - BotNeckAPI.getArgumentsAsString(args) - Returns all the arguments as a string
+ - BotNeckAPI.nextMessagePost(function) - Executes function when a new message is successfully sent
  - APIKey - A variable containing the API key of the module
 
 
