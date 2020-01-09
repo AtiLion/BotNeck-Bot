@@ -14,7 +14,8 @@ const protectedObject = { // Protected, do not expose to modules
 	"token": null,
 	"usedKeys": [],
 	"lastUserMessageId": null,
-	"lastBotMessageId": null
+	"lastBotMessageId": null,
+	"messagePostEvent": []
 }
 const modules = {} // key: BotNeckModule
 
@@ -96,7 +97,20 @@ class BotNeck {
 			let result = openRequest.apply(this, [].slice.call(arguments));
 
 			// Hook onload
-			this.onload = function() { BotNeckInternals.getMessageId(this.responseText, this["automated"]); }
+			this.onload = function() {
+				BotNeckInternals.getMessageId(this.responseText, this["automated"]);
+
+				for(let func of [ ...protectedObject["messagePostEvent"] ]) {
+					try {
+						(function(responseText) {
+							func(responseText);
+						})(this.responseText);
+					} catch(err) {
+						console.log("Error while executing post event", err);
+					}
+					protectedObject["messagePostEvent"].splice(0, 1);
+				}
+			}
 
 			return result;
 		}
@@ -132,6 +146,9 @@ class BotNeckAPI {
 		req.setRequestHeader("Authorization", protectedObject["token"]);
 		return true;
 	}
+	static nextMessagePost(func) {
+		protectedObject["messagePostEvent"].push(func);
+	}
 
 	static generateError(error) {
 		return {
@@ -162,7 +179,7 @@ class BotNeckAPI {
 class BotNeckInternals {
 	static getMessageId(response, isAutomated) {
 		try {
-			parsed = JSON.parse(response);
+			let parsed = JSON.parse(response);
 
 			if(parsed["id"]) {
 				if(isAutomated)
