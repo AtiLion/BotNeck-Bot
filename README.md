@@ -22,6 +22,7 @@ BotNeck Bot offers lots of already built in commands such as:
  - Roll a dice
  - Backup/Save the chat
  - Browse MyAnimeList in embeds
+ - Embed module to create custom embeds
 
 BotNeck is also special as it uses a send hook to capture the message before it is ever sent to the server. That means the message is never edited or deleted from the server and is instead captured, modified and sent to the server. This will in turn prevent spamming of messages for users on the server.
 I am also working on adding more features and commands as time goes on.
