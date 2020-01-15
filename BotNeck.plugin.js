@@ -304,6 +304,8 @@ class BotNeckInternals {
 		return { command, args }
 	}
 	static buildArgType(value) {
+		if(!value || value === "")
+			return false;
 		if(isNaN(value))
 			return value;
 		return Number(value);
