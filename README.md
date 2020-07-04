@@ -2,6 +2,8 @@ BotNeck Bot
 ==========
 BotNeck Bot is a self-bot that is implemented into discord as a **BandagedDiscord** plugin. It is designed to be dynamic and easy to use. That means it is extremely easy to add your own commands to the bot without having to modify the code!
 
+To use the bot you need to use the prefix "->" if you want to change the prefix the configuration is located in your BetterDiscord directory under the name "BotNeck.config.json"
+
 ----------
 
 Features
@@ -22,6 +24,7 @@ BotNeck Bot offers lots of already built in commands such as:
  - Roll a dice
  - Backup/Save the chat
  - Browse MyAnimeList in embeds
+ - Browse AniList in embeds
  - Embed module to create custom embeds
 
 BotNeck is also special as it uses a send hook to capture the message before it is ever sent to the server. That means the message is never edited or deleted from the server and is instead captured, modified and sent to the server. This will in turn prevent spamming of messages for users on the server.
