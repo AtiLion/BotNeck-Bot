@@ -30,7 +30,6 @@ class embed {
 		    fields: []
 		}
 
-
 		// Parse the args
 		for(let key in args) {
 			// Only look for keys
@@ -67,7 +66,7 @@ class embed {
 				}
 			} else {
 				let field = {
-					name: keySteps[1],
+					name: keySteps[1].replace('_', ' '),
 					value: args[key],
 					inline: true
 				}

@@ -15,12 +15,16 @@ const protectedObject = { // Protected, do not expose to modules
 	"usedKeys": [],
 	"lastUserMessageId": null,
 	"lastBotMessageId": null,
-	"messagePostEvent": []
+	"messagePostEvent": [],
+	"currentUser": null
 }
 const modules = {} // key: BotNeckModule
 
+let botneckConfig = null;
+
 /* Permissions:
  * - authorized_request = Create a request with your Discord token attached
+ * - get_current_user_info = Returns current user ID
 */
 
 function makeKey() {
@@ -44,11 +48,11 @@ class BotNeck {
 	load() {
 		// Get paths
 		this.modulesPath = BotNeckAPI.getModulesPath();
-		this.botneckConfig = path.join(window.bdConfig.dataPath, "BotNeck.config.json");
+		botneckConfig = path.join(window.bdConfig.dataPath, "BotNeck.config.json");
 
 		// Load config
-		if(fs.existsSync(this.botneckConfig)) {
-			fs.readFile(this.botneckConfig, (err, data) => {
+		if(fs.existsSync(botneckConfig)) {
+			fs.readFile(botneckConfig, (err, data) => {
 				if(err) {
 					console.error("Error while reading configuration");
 					console.error(err);
@@ -68,14 +72,9 @@ class BotNeck {
 					return;
 				}
 			});
-		} else {
-			fs.writeFile(this.botneckConfig, JSON.stringify(config), err => {
-				if(err) {
-					console.error("Failed to save configuration file");
-					console.error(err);
-				}
-			});
 		}
+		else
+			BotNeckInternals.saveConfig();
 
 		// Load modules
 		if(!fs.existsSync(this.modulesPath))
@@ -137,6 +136,37 @@ class BotNeckAPI {
 	static getLastUserMessageId() { return protectedObject["lastUserMessageId"]; }
 	static getLastBotMessageId() { return protectedObject["lastBotMessageId"]; }
 	static getModulesPath() { return path.join(window.ContentManager.pluginsFolder, "BotNeckModules"); }
+	static getCurrentUser(apiKey, callback) {
+		if(!modules[apiKey] || !modules[apiKey].permissions.includes('get_current_user_info'))
+			return callback(null);
+
+		// Get current user information
+		if(!protectedObject['currentUser']) {
+			fetch('https://discordapp.com/api/v6/users/@me', {
+				method: 'GET',
+				headers: {
+					Authorization: protectedObject['token']
+				}
+			})
+			.then(res => {
+				res.json()
+				.then(user => {
+					protectedObject['currentUser'] = user;
+					callback(user);
+				})
+				.catch(err => {
+					console.log('Failed parsing user information!', err);
+					callback(null);
+				});
+			})
+			.catch(err => {
+				console.log('Error while getting user information!', err);
+				callback(null);
+			});
+			return;
+		}
+		return callback(protectedObject['currentUser']);
+	}
 
 	static setAuthHeader(req, apiKey) {
 		if(!modules[apiKey] || !modules[apiKey].permissions.includes("authorized_request"))
@@ -212,6 +242,10 @@ class BotNeckInternals {
 			else if(command === "reload") {
 				parsed["embed"] = BotNeckInternals.generateReload(args);
 				delete parsed["content"];
+			}
+			else if(command === 'config') {
+				parsed['embed'] = BotNeckInternals.generateConfigChange(args);
+				delete parsed['content'];
 			}
 			else {
 				parsed["embed"] = BotNeckAPI.generateError(`Command *"${command}"* not found! Use the *help* command to see all commands!`);
@@ -311,12 +345,32 @@ class BotNeckInternals {
 		return Number(value);
 	}
 
+	static generateConfigChange(args) {
+		if(BotNeckAPI.getArgumentNumber(args) < 2) {
+			return {
+				title: 'BotNeck Config',
+				type: 'rich',
+				description: 'Current configuration keys: ' + Object.keys(config).join(', '),
+				color: 0x0061ff
+			}
+		}
+
+		config[args[0]] = args[1];
+		this.saveConfig();
+		return {
+			title: 'BotNeck Config',
+			type: 'rich',
+			description: 'New configuration set!',
+			color: 0x0061ff
+		}
+	}
 	static generateHelp(args) {
 		if(!args[0]) { // No command provided
 			let help = [
 				"help - Displays the description of all commands or one command",
 				"usage - Displays the usage of all commands or one command",
-				"reload - Reloads all the modules or one specific module"
+				"reload - Reloads all the modules or one specific module",
+				"config - Sets the specified configuration key to a specific value or displays all configuration keys"
 			]
 			for(let mod of Object.values(modules))
 				help.push(`${mod.command} - ${mod.module.description ? mod.module.description : "No description!"}`);
@@ -353,6 +407,14 @@ class BotNeckInternals {
 				color: 0x0061ff
 			}
 		}
+		else if(args[0] === 'config') {
+			return {
+				title: "BotNeck Help",
+				type: "rich",
+				description: "config - Sets the specified configuration key to a specific value or displays all configuration keys",
+				color: 0x0061ff
+			}
+		}
 		else {
 			let mod = BotNeckInternals.getModuleByCommand(args[0]);
 
@@ -371,7 +433,8 @@ class BotNeckInternals {
 			let usage = [
 				"help - help *[command]*",
 				"usage - usage *[command]*",
-				"reload - reload *[command]*"
+				"reload - reload *[command]*",
+				"config - config *[config key]* *[config value]*"
 			]
 
 			for(let mod of Object.values(modules))
@@ -406,6 +469,14 @@ class BotNeckInternals {
 				title: "BotNeck Usage",
 				type: "rich",
 				description: "reload - reload *[command]*",
+				color: 0x0061ff
+			}
+		}
+		else if(args[0] === "config") {
+			return {
+				title: "BotNeck Usage",
+				type: "rich",
+				description: "config - config *[config key]* *[config value]*",
 				color: 0x0061ff
 			}
 		}
@@ -524,6 +595,14 @@ class BotNeckInternals {
 
 		modules[sandbox.key] = new BotNeckModule(sandbox);
 		return true;
+	}
+	static saveConfig() {
+		fs.writeFile(botneckConfig, JSON.stringify(config), err => {
+			if(err) {
+				console.error("Failed to save configuration file");
+				console.error(err);
+			}
+		});
 	}
 }
 class BotNeckSandBox {
