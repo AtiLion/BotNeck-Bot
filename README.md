@@ -28,6 +28,9 @@ BotNeck Bot offers lots of already built in commands such as:
  - Embed module to create custom embeds
  - F in chat
  - Change configuration with a command
+ - Flip a coin
+ - Send a random neko picture using nekos.life [NSFW]
+ - Send a random wallpaper using nekos.life [NSFW]
 
 BotNeck is also special as it uses a send hook to capture the message before it is ever sent to the server. That means the message is never edited or deleted from the server and is instead captured, modified and sent to the server. This will in turn prevent spamming of messages for users on the server.
 I am also working on adding more features and commands as time goes on.
