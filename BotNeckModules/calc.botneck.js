@@ -1,35 +1,35 @@
 class calc {
 	constructor() {
 		this.permissions = [];
-		this.command = "calc";
-		this.description = "This will calculate anything for you";
-		this.usage = "calc [calculation]";
+		this.command = 'calc';
+		this.description = 'This will calculate anything for you';
+		this.usage = 'calc [calculation]';
 	}
 
 	execute(message, args) {
 		// Init
-		delete message["content"];
+		delete message['content'];
 
 		// Validate number of args
 		if(BotNeckAPI.getArgumentNumber(args) < 1)
-			return message["embed"] = BotNeckAPI.generateError("You need at least 1 argument for this command!");
+			return message['embed'] = BotNeckAPI.generateError('You need at least 1 argument for this command!');
 
 		// Get input
 		let input = BotNeckAPI.getArgumentsAsString(args);
 
 		// Execute
-		message["embed"] = {
-			title: "Calculator",
-			type: "rich",
-			description: "",
+		message['embed'] = {
+			title: 'Calculator',
+			type: 'rich',
+			description: '',
 			color: 0x0061ff,
 			fields: [
 				{
-					name: "Calculation",
+					name: 'Calculation',
 					value: input,
 				},
 				{
-					name: "Result",
+					name: 'Result',
 					value: eval(input),
 				},
 			]

@@ -1,22 +1,22 @@
 //META{"name":"BotNeck","website":"https://github.com/AtiLion/BotNeck-Bot","source":"https://github.com/AtiLion/BotNeck-Bot/blob/master/BotNeck.plugin.js"}*//
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 const sendRequest = XMLHttpRequest.prototype.send;
 const setRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
 const openRequest = XMLHttpRequest.prototype.open;
 
 const config = {
-	"prefix": "->"
+	'prefix': '->'
 }
 const protectedObject = { // Protected, do not expose to modules
-	"token": null,
-	"usedKeys": [],
-	"lastUserMessageId": null,
-	"lastBotMessageId": null,
-	"messagePostEvent": [],
-	"currentUser": null
+	'token': null,
+	'usedKeys': [],
+	'lastUserMessageId': null,
+	'lastBotMessageId': null,
+	'messagePostEvent': [],
+	'currentUser': null
 }
 const modules = {} // key: BotNeckModule
 
@@ -34,27 +34,27 @@ function makeKey() {
 	for ( var i = 0; i < 16; i++ ) {
 		result += characters.charAt(Math.floor(Math.random() * charactersLength));
 	}
-	if(result in protectedObject["usedKeys"]) // Make sure there are no duplicates
+	if(result in protectedObject['usedKeys']) // Make sure there are no duplicates
 		return makeKey();
 	return result;
 }
 
 class BotNeck {
-	getName() { return "BotNeck Bot"; }
-	getDescription() { return "Adds selfbot commands to the Discord client."; }
-	getVersion() { return "0.2.0"; }
-	getAuthor() { return "AtiLion"; }
+	getName() { return 'BotNeck Bot'; }
+	getDescription() { return 'Adds selfbot commands to the Discord client.'; }
+	getVersion() { return '0.2.0'; }
+	getAuthor() { return 'AtiLion'; }
 
 	load() {
 		// Get paths
 		this.modulesPath = BotNeckAPI.getModulesPath();
-		botneckConfig = path.join(window.bdConfig.dataPath, "BotNeck.config.json");
+		botneckConfig = path.join(window.bdConfig.dataPath, 'BotNeck.config.json');
 
 		// Load config
 		if(fs.existsSync(botneckConfig)) {
 			fs.readFile(botneckConfig, (err, data) => {
 				if(err) {
-					console.error("Error while reading configuration");
+					console.error('Error while reading configuration');
 					console.error(err);
 					return;
 				}
@@ -67,7 +67,7 @@ class BotNeck {
 							config[key] = parsed[key];
 					}
 				} catch(err) {
-					console.error("Error while parsing configuration file");
+					console.error('Error while parsing configuration file');
 					console.error(err);
 					return;
 				}
@@ -81,12 +81,12 @@ class BotNeck {
 			fs.mkdirSync(this.modulesPath);
 		BotNeckInternals.loadAllModules(err => {
 			if(err) {
-				console.error("Error while loading modules!");
+				console.error('Error while loading modules!');
 				console.error(err);
 				return;
 			}
 
-			console.log("All modules loaded!");
+			console.log('All modules loaded!');
 		});
 	}
 
@@ -97,25 +97,25 @@ class BotNeck {
 
 			// Hook onload
 			this.onload = function() {
-				BotNeckInternals.getMessageId(this.responseText, this["automated"]);
+				BotNeckInternals.getMessageId(this.responseText, this['automated']);
 
-				for(let func of [ ...protectedObject["messagePostEvent"] ]) {
+				for(let func of [ ...protectedObject['messagePostEvent'] ]) {
 					try {
 						(function(responseText) {
 							func(responseText);
 						})(this.responseText);
 					} catch(err) {
-						console.log("Error while executing post event", err);
+						console.log('Error while executing post event', err);
 					}
-					protectedObject["messagePostEvent"].splice(0, 1);
+					protectedObject['messagePostEvent'].splice(0, 1);
 				}
 			}
 
 			return result;
 		}
 		XMLHttpRequest.prototype.setRequestHeader = function(header, value) {
-			if(header.toLowerCase() === "authorization" && !this["automated"])
-				protectedObject["token"] = value;
+			if(header.toLowerCase() === 'authorization' && !this['automated'])
+				protectedObject['token'] = value;
 
 			return setRequestHeader.call(this, header, value);
 		}
@@ -131,11 +131,11 @@ class BotNeck {
 	}
 }
 class BotNeckAPI {
-	static getCurrentServerId() { return window.location.pathname.split("/")[2]; }
-	static getCurrentChannelId() { return window.location.pathname.split("/")[3]; }
-	static getLastUserMessageId() { return protectedObject["lastUserMessageId"]; }
-	static getLastBotMessageId() { return protectedObject["lastBotMessageId"]; }
-	static getModulesPath() { return path.join(window.ContentManager.pluginsFolder, "BotNeckModules"); }
+	static getCurrentServerId() { return window.location.pathname.split('/')[2]; }
+	static getCurrentChannelId() { return window.location.pathname.split('/')[3]; }
+	static getLastUserMessageId() { return protectedObject['lastUserMessageId']; }
+	static getLastBotMessageId() { return protectedObject['lastBotMessageId']; }
+	static getModulesPath() { return path.join(window.ContentManager.pluginsFolder, 'BotNeckModules'); }
 	static getCurrentUser(apiKey, callback) {
 		if(!modules[apiKey] || !modules[apiKey].permissions.includes('get_current_user_info'))
 			return callback(null);
@@ -169,27 +169,27 @@ class BotNeckAPI {
 	}
 
 	static setAuthHeader(req, apiKey) {
-		if(!modules[apiKey] || !modules[apiKey].permissions.includes("authorized_request"))
+		if(!modules[apiKey] || !modules[apiKey].permissions.includes('authorized_request'))
 			return false;
 
-		req["automated"] = true;
-		req.setRequestHeader("Authorization", protectedObject["token"]);
+		req['automated'] = true;
+		req.setRequestHeader('Authorization', protectedObject['token']);
 		return true;
 	}
 	static nextMessagePost(func) {
-		protectedObject["messagePostEvent"].push(func);
+		protectedObject['messagePostEvent'].push(func);
 	}
 
 	static generateError(error) {
 		return {
-			title: "BotNeck Error",
-			type: "rich",
+			title: 'BotNeck Error',
+			type: 'rich',
 			description: error,
 			color: 0xff6e00
 		}
 	}
 	static getArgumentNumber(args) {
-		if(typeof args !== "object")
+		if(typeof args !== 'object')
 			return 0;
 		let counter = 0;
 
@@ -199,10 +199,10 @@ class BotNeckAPI {
 		return counter;
 	}
 	static getArgumentsAsString(args) {
-		let input = "";
+		let input = '';
 
 		for(let i in args)
-			input += args[i] + " ";
+			input += args[i] + ' ';
 		return input;
 	}
 }
@@ -211,11 +211,11 @@ class BotNeckInternals {
 		try {
 			let parsed = JSON.parse(response);
 
-			if(parsed["id"]) {
+			if(parsed['id']) {
 				if(isAutomated)
-					protectedObject["lastBotMessageId"] = parsed["id"];
+					protectedObject['lastBotMessageId'] = parsed['id'];
 				else
-					protectedObject["lastUserMessageId"] = parsed["id"];
+					protectedObject['lastUserMessageId'] = parsed['id'];
 			}
 		} catch(err) {}
 	}
@@ -224,32 +224,32 @@ class BotNeckInternals {
 		if(parsed == null)
 			return data;
 
-		if(parsed["content"].startsWith(config.prefix)) {
-			let { command, args } = BotNeckInternals.parseCommand(parsed["content"].substring(config.prefix.length));
+		if(parsed['content'].startsWith(config.prefix)) {
+			let { command, args } = BotNeckInternals.parseCommand(parsed['content'].substring(config.prefix.length));
 			let mod = BotNeckInternals.getModuleByCommand(command);
 
 			if(mod) {
 				mod.sandbox.execute(parsed, args);
 			}
-			else if(command === "help") {
-				parsed["embed"] = BotNeckInternals.generateHelp(args);
-				delete parsed["content"];
+			else if(command === 'help') {
+				parsed['embed'] = BotNeckInternals.generateHelp(args);
+				delete parsed['content'];
 			}
-			else if(command === "usage") {
-				parsed["embed"] = BotNeckInternals.generateUsage(args);
-				delete parsed["content"];
+			else if(command === 'usage') {
+				parsed['embed'] = BotNeckInternals.generateUsage(args);
+				delete parsed['content'];
 			}
-			else if(command === "reload") {
-				parsed["embed"] = BotNeckInternals.generateReload(args);
-				delete parsed["content"];
+			else if(command === 'reload') {
+				parsed['embed'] = BotNeckInternals.generateReload(args);
+				delete parsed['content'];
 			}
 			else if(command === 'config') {
 				parsed['embed'] = BotNeckInternals.generateConfigChange(args);
 				delete parsed['content'];
 			}
 			else {
-				parsed["embed"] = BotNeckAPI.generateError(`Command *"${command}"* not found! Use the *help* command to see all commands!`);
-				delete parsed["content"];
+				parsed['embed'] = BotNeckAPI.generateError(`Command *'${command}'* not found! Use the *help* command to see all commands!`);
+				delete parsed['content'];
 			}
 			data = JSON.stringify(parsed);
 		}
@@ -259,9 +259,9 @@ class BotNeckInternals {
 		try {
 			let parsed = JSON.parse(message);
 
-			if ((!parsed["content"] || typeof parsed["content"] !== "string") || 
-				(!parsed["nonce"] || typeof parsed["nonce"] !== "string") || 
-				(parsed["tts"] == null || typeof parsed["tts"] !== "boolean"))
+			if ((!parsed['content'] || typeof parsed['content'] !== 'string') || 
+				(!parsed['nonce'] || typeof parsed['nonce'] !== 'string') || 
+				(parsed['tts'] == null || typeof parsed['tts'] !== 'boolean'))
 					return null; // Invalid message structure
 
 			return parsed;
@@ -291,7 +291,7 @@ class BotNeckInternals {
 			for(let arg of builtArgs) {
 				if(!inValue && arg.includes('=')) { // key=value argument
 					let brokenArg = arg.split('=');
-					let builtValue = "";
+					let builtValue = '';
 
 					name = brokenArg[0];
 					builtValue = arg.substring(name.length + 1);
@@ -323,13 +323,13 @@ class BotNeckInternals {
 				}
 				else { // In the value
 					if(arg.endsWith('"')) {
-						value += " " + arg.substring(0, arg.length - 1);
+						value += ' ' + arg.substring(0, arg.length - 1);
 						inValue = false;
 						pushArg(value);
 						continue;
 					}
 
-					value += " " + arg;
+					value += ' ' + arg;
 				}
 			}
 		}
@@ -338,7 +338,7 @@ class BotNeckInternals {
 		return { command, args }
 	}
 	static buildArgType(value) {
-		if(!value || value === "")
+		if(!value || value === '')
 			return false;
 		if(isNaN(value))
 			return value;
@@ -367,51 +367,51 @@ class BotNeckInternals {
 	static generateHelp(args) {
 		if(!args[0]) { // No command provided
 			let help = [
-				"help - Displays the description of all commands or one command",
-				"usage - Displays the usage of all commands or one command",
-				"reload - Reloads all the modules or one specific module",
-				"config - Sets the specified configuration key to a specific value or displays all configuration keys"
+				'help - Displays the description of all commands or one command',
+				'usage - Displays the usage of all commands or one command',
+				'reload - Reloads all the modules or one specific module',
+				'config - Sets the specified configuration key to a specific value or displays all configuration keys'
 			]
 			for(let mod of Object.values(modules))
-				help.push(`${mod.command} - ${mod.module.description ? mod.module.description : "No description!"}`);
+				help.push(`${mod.command} - ${mod.module.description ? mod.module.description : 'No description!'}`);
 
 			return {
-				title: "BotNeck Help",
-				type: "rich",
-				description: help.join("\n"),
+				title: 'BotNeck Help',
+				type: 'rich',
+				description: help.join('\n'),
 				color: 0x0061ff
 			}
 		}
 
-		if(args[0] === "help") {
+		if(args[0] === 'help') {
 			return {
-				title: "BotNeck Help",
-				type: "rich",
-				description: "help - Displays the description of all commands or one command",
+				title: 'BotNeck Help',
+				type: 'rich',
+				description: 'help - Displays the description of all commands or one command',
 				color: 0x0061ff
 			}
 		}
-		else if(args[0] === "usage") {
+		else if(args[0] === 'usage') {
 			return {
-				title: "BotNeck Help",
-				type: "rich",
-				description: "usage - Displays the usage of all commands or one command",
+				title: 'BotNeck Help',
+				type: 'rich',
+				description: 'usage - Displays the usage of all commands or one command',
 				color: 0x0061ff
 			}
 		}
-		else if(args[0] === "reload") {
+		else if(args[0] === 'reload') {
 			return {
-				title: "BotNeck Help",
-				type: "rich",
-				description: "reload - Reloads all the modules or one specific module",
+				title: 'BotNeck Help',
+				type: 'rich',
+				description: 'reload - Reloads all the modules or one specific module',
 				color: 0x0061ff
 			}
 		}
 		else if(args[0] === 'config') {
 			return {
-				title: "BotNeck Help",
-				type: "rich",
-				description: "config - Sets the specified configuration key to a specific value or displays all configuration keys",
+				title: 'BotNeck Help',
+				type: 'rich',
+				description: 'config - Sets the specified configuration key to a specific value or displays all configuration keys',
 				color: 0x0061ff
 			}
 		}
@@ -419,11 +419,11 @@ class BotNeckInternals {
 			let mod = BotNeckInternals.getModuleByCommand(args[0]);
 
 			if(!mod)
-				return BotNeckAPI.generateError(`Invalid command provided in help! *"${args[0]}"* does not exists!`);
+				return BotNeckAPI.generateError(`Invalid command provided in help! *'${args[0]}'* does not exists!`);
 			return {
-				title: "BotNeck Help",
-				type: "rich",
-				description: `${mod.command} - ${mod.module.description ? mod.module.description : "No description!"}`,
+				title: 'BotNeck Help',
+				type: 'rich',
+				description: `${mod.command} - ${mod.module.description ? mod.module.description : 'No description!'}`,
 				color: 0x0061ff
 			}
 		}
@@ -431,52 +431,52 @@ class BotNeckInternals {
 	static generateUsage(args) {
 		if(!args[0]) { // No command provided
 			let usage = [
-				"help - help *[command]*",
-				"usage - usage *[command]*",
-				"reload - reload *[command]*",
-				"config - config *[config key]* *[config value]*"
+				'help - help *[command]*',
+				'usage - usage *[command]*',
+				'reload - reload *[command]*',
+				'config - config *[config key]* *[config value]*'
 			]
 
 			for(let mod of Object.values(modules))
-				usage.push(`${mod.command} - ${mod.module.usage ? mod.module.usage : "No usage!"}`)
+				usage.push(`${mod.command} - ${mod.module.usage ? mod.module.usage : 'No usage!'}`)
 
 			return {
-				title: "BotNeck Usage",
-				type: "rich",
-				description: usage.join("\n"),
+				title: 'BotNeck Usage',
+				type: 'rich',
+				description: usage.join('\n'),
 				color: 0x0061ff
 			}
 		}
 
-		if(args[0] === "help") {
+		if(args[0] === 'help') {
 			return {
-				title: "BotNeck Usage",
-				type: "rich",
-				description: "help - help *[command]*",
+				title: 'BotNeck Usage',
+				type: 'rich',
+				description: 'help - help *[command]*',
 				color: 0x0061ff
 			}
 		}
-		else if(args[0] === "usage") {
+		else if(args[0] === 'usage') {
 			return {
-				title: "BotNeck Usage",
-				type: "rich",
-				description: "usage - usage *[command]*",
+				title: 'BotNeck Usage',
+				type: 'rich',
+				description: 'usage - usage *[command]*',
 				color: 0x0061ff
 			}
 		}
-		else if(args[0] === "reload") {
+		else if(args[0] === 'reload') {
 			return {
-				title: "BotNeck Usage",
-				type: "rich",
-				description: "reload - reload *[command]*",
+				title: 'BotNeck Usage',
+				type: 'rich',
+				description: 'reload - reload *[command]*',
 				color: 0x0061ff
 			}
 		}
-		else if(args[0] === "config") {
+		else if(args[0] === 'config') {
 			return {
-				title: "BotNeck Usage",
-				type: "rich",
-				description: "config - config *[config key]* *[config value]*",
+				title: 'BotNeck Usage',
+				type: 'rich',
+				description: 'config - config *[config key]* *[config value]*',
 				color: 0x0061ff
 			}
 		}
@@ -484,11 +484,11 @@ class BotNeckInternals {
 			let mod = BotNeckInternals.getModuleByCommand(args[0]);
 
 			if(!mod)
-				return BotNeckAPI.generateError(`Invalid command provided in usage! *"${args[0]}"* does not exists!`);
+				return BotNeckAPI.generateError(`Invalid command provided in usage! *'${args[0]}'* does not exists!`);
 			return {
-				title: "BotNeck Usage",
-				type: "rich",
-				description: `${mod.command} - ${mod.module.usage ? mod.module.usage : "No usage!"}`,
+				title: 'BotNeck Usage',
+				type: 'rich',
+				description: `${mod.command} - ${mod.module.usage ? mod.module.usage : 'No usage!'}`,
 				color: 0x0061ff
 			}
 		}
@@ -497,38 +497,38 @@ class BotNeckInternals {
 		if(!args[0]) { // No command provided
 			BotNeckInternals.loadAllModules(err => {
 				if(err) {
-					console.error("Error while reloading modules!");
+					console.error('Error while reloading modules!');
 					console.error(err);
 					return;
 				}
 
-				console.log("All modules reloaded!");
+				console.log('All modules reloaded!');
 			});
 
 			return {
-				title: "BotNeck Reload",
-				type: "rich",
-				description: "Modules have been reloaded!",
+				title: 'BotNeck Reload',
+				type: 'rich',
+				description: 'Modules have been reloaded!',
 				color: 0x0061ff
 			}
 		}
 		let mod = BotNeckInternals.getModuleByCommand(args[0]);
 
 		if(!mod)
-			return BotNeckAPI.generateError(`Invalid command provided in reload! *"${args[0]}"* does not exists!`);
+			return BotNeckAPI.generateError(`Invalid command provided in reload! *'${args[0]}'* does not exists!`);
 		BotNeckInternals.loadModule(mod.name, err => {
 			if(err) {
-				console.error("Error while attempting to reload module ", name);
+				console.error('Error while attempting to reload module ', name);
 				console.error(err);
 				return;
 			}
 
-			console.log("Module reloaded!");
+			console.log('Module reloaded!');
 		});
 		return {
-			title: "BotNeck Reload",
-			type: "rich",
-			description: "Module has been reloaded!",
+			title: 'BotNeck Reload',
+			type: 'rich',
+			description: 'Module has been reloaded!',
 			color: 0x0061ff
 		}
 	}
@@ -546,18 +546,18 @@ class BotNeckInternals {
 				return func(err);
 
 			for(let filename of files) {
-				if(filename.indexOf(".botneck.js") < 0)
+				if(filename.indexOf('.botneck.js') < 0)
 					continue;
-				let name = filename.slice(0, -(".botneck.js".length));
+				let name = filename.slice(0, -('.botneck.js'.length));
 
 				BotNeckInternals.loadModule(name, err => {
 					if(err) {
-						console.error("Error while attempting to load module ", name);
+						console.error('Error while attempting to load module ', name);
 						console.error(err);
 						return;
 					}
 
-					console.log("Loaded module", name);
+					console.log('Loaded module', name);
 				});
 			}
 
@@ -565,13 +565,13 @@ class BotNeckInternals {
 		});
 	}
 	static loadModule(name, func) {
-		let file = path.join(BotNeckAPI.getModulesPath(), name + ".botneck.js");
+		let file = path.join(BotNeckAPI.getModulesPath(), name + '.botneck.js');
 
 		if(!fs.existsSync(file))
-			return func("No such file/module found!");
+			return func('No such file/module found!');
 		for(let key in modules) {
 			if(modules[key].name === name) {
-				console.log("Unloaded", name);
+				console.log('Unloaded', name);
 				delete modules[key];
 				break;
 			}
@@ -599,7 +599,7 @@ class BotNeckInternals {
 	static saveConfig() {
 		fs.writeFile(botneckConfig, JSON.stringify(config), err => {
 			if(err) {
-				console.error("Failed to save configuration file");
+				console.error('Failed to save configuration file');
 				console.error(err);
 			}
 		});
@@ -615,24 +615,24 @@ class BotNeckSandBox {
 	static build(code, apiKey, name) {
 		try {
 			// Setup generated variables
-			let generatedCode = "(function(){";
+			let generatedCode = '(function(){';
 
 			// Add protections
-			generatedCode += `let APIKey = "${apiKey}";`;
+			generatedCode += `let APIKey = '${apiKey}';`;
 
 			// Add actual code
-			generatedCode += "\n" + code + "\n";
+			generatedCode += '\n' + code + '\n';
 
 			// Add sandbox execution
-			generatedCode += `BotNeckSandBox.setup("${name}", "${apiKey}", new ${name}());`;
+			generatedCode += `BotNeckSandBox.setup('${name}', '${apiKey}', new ${name}());`;
 
 			// EOF
-			generatedCode += "})()";
+			generatedCode += '})()';
 
 			// Execute
 			eval(generatedCode);
 		} catch(err) {
-			console.error("Failed to load module", name);
+			console.error('Failed to load module', name);
 			console.error(err);
 		}
 	}
@@ -652,7 +652,7 @@ class BotNeckSandBox {
 		try {
 			return this.module.execute(message, args);
 		} catch(err) {
-			console.error("Failed to execute module", this.name);
+			console.error('Failed to execute module', this.name);
 			console.error(err);
 			return null;
 		}

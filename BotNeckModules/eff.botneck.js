@@ -1,16 +1,16 @@
 class eff {
 	constructor() {
 		this.permissions = [ 'get_current_user_info', 'authorized_request' ];
-		this.command = "f";
-		this.description = "Press F to pay respects";
-		this.usage = "f <person/thing>";
+		this.command = 'f';
+		this.description = 'Press F to pay respects';
+		this.usage = 'f <person/thing>';
     }
     sendMessage(message) {
         $.ajax({
-            type: "POST",
-            url: "https://discordapp.com/api/v6/channels/" + BotNeckAPI.getCurrentChannelId() + "/messages",
-            dataType: "json",
-            contentType: "application/json",
+            type: 'POST',
+            url: 'https://discordapp.com/api/v6/channels/' + BotNeckAPI.getCurrentChannelId() + '/messages',
+            dataType: 'json',
+            contentType: 'application/json',
             data: JSON.stringify({
                 embed: {
                     description: message,

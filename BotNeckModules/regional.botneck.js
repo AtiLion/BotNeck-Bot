@@ -1,9 +1,9 @@
 class regional {
 	constructor() {
 		this.permissions = [];
-		this.command = "regional";
-		this.description = "Changes all letters into regionals";
-		this.usage = "regional [text]";
+		this.command = 'regional';
+		this.description = 'Changes all letters into regionals';
+		this.usage = 'regional [text]';
 
 		this.regionals = {'a': ':regional_indicator_a:', 'b': ':regional_indicator_b:',
 						  'c': ':regional_indicator_c:',
@@ -31,17 +31,17 @@ class regional {
 	execute(message, args) {
 		// Validate number of args
 		if(BotNeckAPI.getArgumentNumber(args) < 1)
-			return message["embed"] = BotNeckAPI.generateError("You need at least 1 argument for this command!");
+			return message['embed'] = BotNeckAPI.generateError('You need at least 1 argument for this command!');
 
 		// Get input
 		let input = BotNeckAPI.getArgumentsAsString(args);
 
 		// Execute
-		message.content = "";
+		message.content = '';
 		for(let i = 0; i < input.length; i++)
 		{
 			if(this.regionals[input[i].toLowerCase()])
-				message.content += this.regionals[input[i].toLowerCase()] + "\u200b";
+				message.content += this.regionals[input[i].toLowerCase()] + '\u200b';
 			else
 				message.content += input[i];
 		}
