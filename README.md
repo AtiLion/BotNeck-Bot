@@ -4,6 +4,8 @@ BotNeck Bot is a self-bot that is implemented into discord as a **BandagedDiscor
 
 To use the bot you need to use the prefix "->" if you want to change the prefix the configuration is located in your BetterDiscord directory under the name "BotNeck.config.json" or change it using the config command
 
+[![Discord](https://img.shields.io/badge/Discord-My%20Personal%20Projects%20Server-blue?style=for-the-badge&logo=discord)](https://discord.gg/qWVgdxu)
+
 ----------
 
 Features
