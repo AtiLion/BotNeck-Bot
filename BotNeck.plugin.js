@@ -230,6 +230,11 @@ class BotNeckAPI {
 			input += args[i] + ' ';
 		return input;
 	}
+	static getMentionUserId(mention) {
+		if(!mention.startsWith('<@!') || !mention.endsWith('>')) return;
+
+		return mention.substring(3, mention.length - 1);
+	}
 }
 class BotNeckInternals {
 	static getMessageId(response, isAutomated) {
