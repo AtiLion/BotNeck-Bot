@@ -231,7 +231,7 @@ class BotNeckAPI {
 		return input;
 	}
 	static getMentionUserId(mention) {
-		if(!mention.startsWith('<@!') || !mention.endsWith('>')) return;
+		if(!mention.startsWith('<@!') || !mention.endsWith('>')) return null;
 
 		return mention.substring(3, mention.length - 1);
 	}
