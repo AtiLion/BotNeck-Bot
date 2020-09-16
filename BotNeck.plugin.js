@@ -24,7 +24,8 @@ let botneckConfig = null;
 
 /* Permissions:
  * - authorized_request = Create a request with your Discord token attached
- * - get_current_user_info = Returns current user ID
+ * - get_current_user_info = Returns current user information
+ * - get_target_user_info = Returns the target user information
 */
 
 function makeKey() {
@@ -166,6 +167,30 @@ class BotNeckAPI {
 			return;
 		}
 		return callback(protectedObject['currentUser']);
+	}
+	static getTargetUser(apiKey, userId, callback) {
+		if(!modules[apiKey] || !modules[apiKey].permissions.includes('get_target_user_info'))
+			return callback(null);
+
+		// Get target user information
+		fetch('https://discordapp.com/api/v6/users/' + userId, {
+			method: 'GET',
+			headers: {
+				Authorization: protectedObject['token']
+			}
+		})
+		.then(res => {
+			res.json()
+			.then(callback)
+			.catch(err => {
+				console.log('Failed parsing user information!', err);
+				callback(null);
+			})
+		})
+		.catch(err => {
+			console.log('Error while getting user information!', err);
+			callback(null);
+		});
 	}
 
 	static setAuthHeader(req, apiKey) {
