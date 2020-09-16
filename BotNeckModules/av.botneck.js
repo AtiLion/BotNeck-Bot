@@ -3,7 +3,7 @@ class av {
 		this.permissions = [ 'get_target_user_info', 'authorized_request' ];
 		this.command = 'av';
 		this.description = 'Returns the profile picture of the target user.';
-		this.usage = 'av <tagged user> [png/gif]';
+		this.usage = 'av <tagged user>';
     }
 
     errorMessage(id, message) {
@@ -51,12 +51,6 @@ class av {
         let userId = BotNeckAPI.getMentionUserId(args[0]);
         if(!userId) return message['embed'] = BotNeckAPI.generateError('Failed to find the specified user id!');
 
-        // Find if using gif of png
-        let imgExtension = 'png';
-        if(BotNeckAPI.getArgumentNumber(args) > 1)
-            if(args[1].toLowerCase() === 'gif')
-                imgExtension = 'gif';
-
         // Setup message Id
         let messageId = null;
         BotNeckAPI.nextMessagePost(() => {
@@ -76,13 +70,31 @@ class av {
         BotNeckAPI.getTargetUser(APIKey, userId, user => {
             if(!user) return this.runAfterId(messageId, () => { this.errorMessage(messageId, 'Failed to get user information!') });
 
+            // Figure out avatar url
+            let avatarUrl = `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}`;
+            let sizeSet = '?size=1024';
+
+            // Figure out image extension
+            let imgExtension = 'png';
+            if(user.avatar.startsWith('a_'))
+                imgExtension = 'gif';
+
+            // Figure out links
+            let links = `[png](${avatarUrl}.png${sizeSet}) | [jpg](${avatarUrl}.jpg${sizeSet})`;
+            if(imgExtension === 'gif')
+                links += ` | [webp](${avatarUrl}.webp${sizeSet})`;
+
             // Print out user information
             this.runAfterId(messageId, () => {
                 delete embed['description'];
-                delete embed['title'];
+                embed['title'] = `Avatar for ${user.username}#${user.discriminator}`;
                 embed['image'] = {
-                    url: `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}.${imgExtension}`
+                    url: `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}.${imgExtension}${sizeSet}`
                 }
+                embed['fields'] = [{
+                    name: 'Link as',
+                    value: links
+                }];
 
                 this.sendImage(messageId, embed);
             });
