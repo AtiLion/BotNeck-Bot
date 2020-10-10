@@ -66,7 +66,7 @@ class embed {
 				}
 			} else {
 				let field = {
-					name: keySteps[1].replace('_', ' '),
+					name: keySteps[1].replace(/\_/g, ' '),
 					value: args[key],
 					inline: true
 				}
