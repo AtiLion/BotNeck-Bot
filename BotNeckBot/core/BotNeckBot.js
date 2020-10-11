@@ -1,7 +1,12 @@
-const {} = require('./DiscordNetwork');
+const DiscordNetwork = require('./DiscordNetwork');
 
 module.exports = class BotNeckBot {
     constructor() {
+        this.discordNetwork = new DiscordNetwork();
+
+        this.discordNetwork.onEventReceived = function(msg) {
+            console.log(msg);
+        }
     }
 
     static get Name() { return 'BotNeck Bot'; }

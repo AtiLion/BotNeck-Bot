@@ -1,15 +1,15 @@
+const zlib = require('zlib');
+const erlpack = DiscordNative.nativeModules.requireModule('discord_erlpack');
 const BotNeckLog = require('../api/BotNeckLog');
 
 const originalRequestOpen = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function() {
     return originalRequestOpen.apply(this, [].slice.call(arguments));
 }
-
 const originalRequestSetHeader = XMLHttpRequest.prototype.setRequestHeader;
 XMLHttpRequest.prototype.setRequestHeader = function(header, value) {
     return originalRequestSetHeader.call(this, header, value);
 }
-
 const originalRequestSend = XMLHttpRequest.prototype.send;
 XMLHttpRequest.prototype.send = function(data) {
     return originalRequestSend.call(this, data);
@@ -32,15 +32,34 @@ WebSocket.prototype.send = function() {
 let discordWebSocket = null;
 let originalWSOnMessage = null;
 function handleWSOnMessage(ev) {
-    for(let instance of NetworkInstances) {
-        try {
-            if(instance.onEventReceived)
-                instance.onEventReceived(ev);
-        }
-        catch (err) { BotNeckLog.error(err, 'Failed to call event received successfully!'); }
-    }
+    const data = ev.data;
+
+    /*if(validateZLib(new Int8Array(data))) {
+        zlib.inflateRaw(data, { flush: zlib.constants.Z_SYNC_FLUSH }, (err, data) => {
+            if(err) return BotNeckLog.error(err, 'Failed to inflate Discord message!');
+    
+            data = erlpack.unpack(data);
+            for(let instance of NetworkInstances) {
+                try {
+                    if(instance.onEventReceived)
+                        instance.onEventReceived(data);
+                }
+                catch (err) { BotNeckLog.error(err, 'Failed to call event received successfully!'); }
+            }
+        });
+    } else BotNeckLog.log('Failed to validate ZLib data!');*/
+
     if(originalWSOnMessage)
-        originalWSOnMessage(ev);
+        return originalWSOnMessage(ev);
+}
+function validateZLib(data) {
+    const len = data.length;
+    if(len < 4) return false;
+
+    const zlibFlush = [ -1, -1, 0, 0 ];
+    for(let i = 0; i < zlibFlush.length; i++)
+        if(data[len - (i + 1)] !== zlibFlush[i]) return false;   
+    return true;
 }
 
 const NetworkInstances = [];

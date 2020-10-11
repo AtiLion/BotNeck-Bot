@@ -1,2 +1,4 @@
 BotNeck-Bot.zip
-BotNeckBot/packages
+
+BotNeckBot/node_modules
+BotNeckBot/package-lock.json
