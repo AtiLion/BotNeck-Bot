@@ -1,6 +1,11 @@
-const zlib = require('zlib');
+const pako = require('pako');
 const erlpack = DiscordNative.nativeModules.requireModule('discord_erlpack');
 const BotNeckLog = require('../api/BotNeckLog');
+
+const pakoInflate = new pako.Inflate({
+    chunkSize: 65536,
+    to: 'string'
+});
 
 const originalRequestOpen = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function() {
@@ -32,7 +37,20 @@ WebSocket.prototype.send = function() {
 let discordWebSocket = null;
 let originalWSOnMessage = null;
 function handleWSOnMessage(ev) {
-    const data = ev.data;
+    let data = new Uint8Array(ev.data);
+
+    pakoInflate.push(data, validateZLib(data) && pako.Z_SYNC_FLUSH);
+    if(pakoInflate.err) return;
+
+    data = pakoInflate.result;
+    data = erlpack.unpack(data);
+    for(let instance of NetworkInstances) {
+        try {
+            if(instance.onEventReceived)
+                instance.onEventReceived(data);
+        }
+        catch (err) { BotNeckLog.error(err, 'Failed to call event received successfully!'); }
+    }
 
     /*if(validateZLib(new Int8Array(data))) {
         zlib.inflateRaw(data, { flush: zlib.constants.Z_SYNC_FLUSH }, (err, data) => {
@@ -56,7 +74,8 @@ function validateZLib(data) {
     const len = data.length;
     if(len < 4) return false;
 
-    const zlibFlush = [ -1, -1, 0, 0 ];
+    //const zlibFlush = [ -1, -1, 0, 0 ];
+    const zlibFlush = [ 0xff, 0xff, 0x00, 0x00 ];
     for(let i = 0; i < zlibFlush.length; i++)
         if(data[len - (i + 1)] !== zlibFlush[i]) return false;   
     return true;

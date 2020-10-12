@@ -19,5 +19,7 @@
     "url": "https://github.com/AtiLion/BotNeck-Bot/issues"
   },
   "homepage": "https://github.com/AtiLion/BotNeck-Bot#readme",
-  "dependencies": { }
+  "dependencies": {
+    "pako": "^1.0.11"
+  }
 }
