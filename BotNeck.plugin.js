@@ -10,11 +10,12 @@ class BotNeck {
     getAuthor() { return BotNeckBot.Author; }
 
     load() {
-        BotInstance = new BotNeckBot();
     }
     
     start() {
+        BotInstance = new BotNeckBot();
     }
     stop() {
+        BotInstance.destroy();
     }
 }
