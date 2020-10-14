@@ -1,18 +1,11 @@
 const BotNeckLog = require('../api/BotNeckLog');
 const { DiscordNetwork, DiscordNetworkCleanup } = require('./DiscordNetwork');
+const ModuleManager = require('./ModuleManager');
 
 module.exports = class BotNeckBot {
     constructor() {
         this.discordNetwork = new DiscordNetwork();
-
-        this.discordNetwork.onRequestSent = (data, isBot) => {
-            if(isBot) BotNeckLog.log('Got bot request data', data);
-            else BotNeckLog.log('Got discord request data', data);
-        }
-        this.discordNetwork.onResponseReceived = (data, isBot) => {
-            if(isBot) BotNeckLog.log('Got bot response data', data);
-            else BotNeckLog.log('Got discord response data', data);
-        }
+        this.moduleManager = new ModuleManager();
     }
     destroy() {
         BotNeckLog.log('Cleaning up DiscordNetwork ...');
