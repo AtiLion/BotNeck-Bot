@@ -24,15 +24,24 @@ module.exports = class BotNeckModule {
     get Author() { return null; }
 
     /**
+     * Executed when the module is suppose to load
+     */
+    onLoad() {}
+    /**
+     * Executed when the module is suppose to unload
+     */
+    onUnload() {}
+
+    /**
      * Registers a command instance to the module
      * @param {BotNeckCommand} command The command instance to register to the module
      */
-    RegisterCommand(command) {
+    registerCommand(command) {
     }
     /**
      * Un-registers a command instance from the module
      * @param {BotNeckCommand} command The command instance to un-register from the module
      */
-    UnregisterCommand(command) {
+    unregisterCommand(command) {
     }
 }
