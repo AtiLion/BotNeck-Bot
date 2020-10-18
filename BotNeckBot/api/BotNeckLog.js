@@ -13,7 +13,8 @@ module.exports = {
      * @param  {...any} message The custom message that gets printed along side the error
      */
     error: function(error, ...message) {
-        console.log('%c%s%c%s', 'color: Red', '[BotNeck Bot] ', 'color: White', ...message);
+        if(message.length > 0)
+            console.log('%c%s%c%s', 'color: Red', '[BotNeck Bot] ', 'color: White', ...message);
         console.error(error);
     }
 }

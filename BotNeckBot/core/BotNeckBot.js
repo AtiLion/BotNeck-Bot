@@ -6,6 +6,8 @@ module.exports = class BotNeckBot {
     constructor() {
         this.discordNetwork = new DiscordNetwork();
         this.moduleManager = new ModuleManager();
+
+        this.moduleManager.loadModules();
     }
     destroy() {
         BotNeckLog.log('Cleaning up DiscordNetwork ...');

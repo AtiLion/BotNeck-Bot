@@ -131,7 +131,8 @@ function safeInvokeEvent(event, ...args) {
 
     for(let instance of NetworkInstances) {
         try {
-            instance[event].apply(this, args);
+            if(instance[event])
+                instance[event].apply(this, args);
         } catch (err) { BotNeckLog.error(err, 'Failed to invoke event', event); }
     }
 }
@@ -141,8 +142,10 @@ class DiscordNetwork {
         this.onRequestSent = null; // Args: Parsed JSON content, Was sent by bot
         this.onResponseReceived = null; // Args: Parsed JSON, Was sent by bot
 
-        if(NetworkInstances.length > 1)
-            throw 'DiscordNetwork has exceeded the maximum number of network instances!';
+        if(NetworkInstances.length > 1) {
+            BotNeckLog.error('DiscordNetwork has exceeded the maximum number of network instances!');
+            return;
+        }
         NetworkInstances.push(this);
 
         // Override all the http functions
