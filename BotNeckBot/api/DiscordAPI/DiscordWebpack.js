@@ -111,7 +111,7 @@ class Filters {
     }
 }
 
-class WebpackModules {
+module.exports = class WebpackModules {
 
     static find(filter, first = true) {return this.getModule(filter, first);}
     static findAll(filter) {return this.getModule(filter, false);}
@@ -314,4 +314,3 @@ class WebpackModules {
         return this.require.c;
     }
 }
-module.exports = { WebpackModules, Filters };

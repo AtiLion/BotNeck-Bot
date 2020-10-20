@@ -79,3 +79,10 @@ How to install a module
  2. Inside the folder open the BotNeck_Modules folder.
  3. Put the .botneck.js file/files inside the folder.
  4. And you are done!
+
+
+ ----------
+
+Credits
+-----------------------
+- [rauenzi](https://github.com/rauenzi) - [BDPluginLibrary](https://github.com/rauenzi/BDPluginLibrary)

@@ -1,3 +1,5 @@
+const { DiscordUser } = require('../DiscordAPI');
+
 module.exports = class BotNeckAPI {
 	static getCurrentServerId() { return window.location.pathname.split('/')[2]; }
 	static getCurrentChannelId() { return window.location.pathname.split('/')[3]; }
@@ -5,55 +7,10 @@ module.exports = class BotNeckAPI {
 	static getLastBotMessageId() { return protectedObject['lastBotMessageId']; }
 	static getModulesPath() { return path.join(window.ContentManager.pluginsFolder, 'BotNeckModules'); }
 	static getCurrentUser(apiKey, callback) {
-		if(!protectedObject['currentUser']) {
-			fetch('https://discordapp.com/api/v6/users/@me', {
-				method: 'GET',
-				headers: {
-					Authorization: protectedObject['token']
-				}
-			})
-			.then(res => {
-				res.json()
-				.then(user => {
-					protectedObject['currentUser'] = user;
-					callback(user);
-				})
-				.catch(err => {
-					console.log('Failed parsing user information!', err);
-					callback(null);
-				});
-			})
-			.catch(err => {
-				console.log('Error while getting user information!', err);
-				callback(null);
-			});
-			return;
-		}
-		return callback(protectedObject['currentUser']);
+		callback(DiscordUser.current);
 	}
 	static getTargetUser(apiKey, userId, callback) {
-		if(!modules[apiKey] || !modules[apiKey].permissions.includes('get_target_user_info'))
-			return callback(null);
-
-		// Get target user information
-		fetch('https://discordapp.com/api/v6/users/' + userId, {
-			method: 'GET',
-			headers: {
-				Authorization: protectedObject['token']
-			}
-		})
-		.then(res => {
-			res.json()
-			.then(callback)
-			.catch(err => {
-				console.log('Failed parsing user information!', err);
-				callback(null);
-			})
-		})
-		.catch(err => {
-			console.log('Error while getting user information!', err);
-			callback(null);
-		});
+		callback(DiscordUser.getFromId(userId));
 	}
 
 	static setAuthHeader(req, apiKey) {
