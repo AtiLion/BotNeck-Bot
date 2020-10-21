@@ -124,17 +124,16 @@ function validateZLib(data) {
 }
 
 ////////////////////////// DiscordNetwork
-const NetworkInstances = [];
+let _instance = null;
 function safeInvokeEvent(event, ...args) {
     if(!event)
         throw 'No event specified!';
 
-    for(let instance of NetworkInstances) {
-        try {
-            if(instance[event])
-                instance[event].apply(this, args);
-        } catch (err) { BotNeckLog.error(err, 'Failed to invoke event', event); }
+    try {
+        if(_instance && _instance[event])
+            _instance[event].apply(this, args);
     }
+    catch (err) { BotNeckLog.error(err, 'Failed to invoke event', event); }
 }
 class DiscordNetwork {
     constructor() {
@@ -142,11 +141,11 @@ class DiscordNetwork {
         this.onRequestSent = null; // Args: Parsed JSON content, Was sent by bot
         this.onResponseReceived = null; // Args: Parsed JSON, Was sent by bot
 
-        if(NetworkInstances.length > 1) {
-            BotNeckLog.error('DiscordNetwork has exceeded the maximum number of network instances!');
+        if(_instance) {
+            BotNeckLog.error('DiscordNetwork instance already exists!');
             return;
         }
-        NetworkInstances.push(this);
+        _instance = this;
 
         // Override all the http functions
         overrideHttpOpen();
@@ -155,7 +154,7 @@ class DiscordNetwork {
     }
 
     sendRequest(endpoint, type, jsonData) {
-        if(!NetworkInstances.includes(this)) throw 'This instance of DiscordNetwork is invalid!';
+        if(_instance !== this) throw 'This instance of DiscordNetwork is invalid!';
         if(!validRequestTypes.includes(type)) throw 'Invalid request type!';
         if(!endpoint) throw 'Empty endpoint!';
 
@@ -175,7 +174,7 @@ class DiscordNetwork {
         });
     }
     sendAuthorizedRequest(endpoint, type, jsonData) {
-        if(!NetworkInstances.includes(this)) throw 'This instance of DiscordNetwork is invalid!';
+        if(_instance !== this) throw 'This instance of DiscordNetwork is invalid!';
         if(!validRequestTypes.includes(type)) throw 'Invalid request type!';
         if(!endpoint) throw 'Empty endpoint!';
         if(!authorizationToken) throw 'No authorization token saved!';
@@ -199,8 +198,7 @@ class DiscordNetwork {
 }
 function DiscordNetworkCleanup() {
     BotNeckLog.log('Removing DiscordNetwork instances ...');
-    while(NetworkInstances.length)
-        NetworkInstances.pop();
+    _instance = null;
 
     BotNeckLog.log('Resetting XMLHttpRequest.open ...');
     XMLHttpRequest.prototype.open = originalHttpOpen;

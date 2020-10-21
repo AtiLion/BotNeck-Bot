@@ -14,11 +14,7 @@ module.exports = class BotNeckAPI {
 	}
 
 	static setAuthHeader(req, apiKey) {
-		if(!modules[apiKey] || !modules[apiKey].permissions.includes('authorized_request'))
-			return false;
-
-		req['automated'] = true;
-		req.setRequestHeader('Authorization', protectedObject['token']);
+		req.escalateAuthorization = true;
 		return true;
 	}
 	static nextMessagePost(func) {

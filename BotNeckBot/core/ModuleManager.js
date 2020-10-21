@@ -4,7 +4,7 @@ const path = require('path');
 const BotNeckLog = require('../api/BotNeckLog');
 const { v2Loader } = require('./loaders');
 
-const _instance = null;
+let _instance = null;
 module.exports = class ModuleManager {
     constructor() {
         this.modulesDirectory = path.resolve(__dirname, '../modules');
@@ -18,6 +18,8 @@ module.exports = class ModuleManager {
             BotNeckLog.error('The modules directory does not exist!');
             return;
         }
+
+        _instance = this;
     }
     destroy() {
         BotNeckLog.log('Unloading BotNeck modules ...');
