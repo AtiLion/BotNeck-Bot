@@ -1,5 +1,4 @@
 const BotNeckCommand = require('./BotNeckCommand');
-const BotNeckCommand = require('./BotNeckCommand');
 
 module.exports = class BotNeckModule {
     /**

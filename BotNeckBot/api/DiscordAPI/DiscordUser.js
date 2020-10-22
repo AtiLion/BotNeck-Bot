@@ -1,4 +1,5 @@
 const WebpackModules = require('./DiscordWebpack');
+const { DiscordNetwork } = require('../../core/DiscordNetwork');
 
 const UserStore = WebpackModules.getByProps('getCurrentUser');
 module.exports = class DiscordUser {
@@ -13,16 +14,28 @@ module.exports = class DiscordUser {
     /**
      * Creates a DiscordUser object from a Discord user's snowflake ID
      * @param {Number} id The snowflake ID of the Discord user
-     * @returns {DiscordUser|null} The DiscordUser object or null if not found
+     * @returns {Promise<DiscordUser>} The DiscordUser object or null if not found
      */
     static getFromId(id) {
-        const user = UserStore.getUser(id);
-        return (user ? new DiscordUser(user) : null);
+        return new Promise((resolve, reject) => {
+            const user = UserStore.getUser(id);
+
+            if(user) return resolve(new DiscordUser(user));
+            if(!user && !DiscordNetwork.Instance) return resolve(null);
+
+            // At least try to get it via request if it isn't cached by the client
+            DiscordNetwork.Instance.sendAuthorizedRequest('/users/' + id)
+            .then(userObject => {
+                if(!userObject.id) return resolve(null);
+                resolve(new DiscordUser(userObject));
+            })
+            .catch(reject);
+        });
     }
 
     /**
      * Returns the DiscordUser object of the current Discord user
-     * @returns {DiscordUser} The current user's DiscordUser object
+     * @returns {DiscordUser} The current user's DiscordUser object or null if not found
      */
     static get current() {
         const user = UserStore.getCurrentUser();

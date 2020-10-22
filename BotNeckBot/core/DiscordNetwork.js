@@ -9,7 +9,7 @@ const validRequestTypes = [ 'POST', 'GET', 'DELETE', 'PATCH' ];
     to: 'string'
 });*/
 
-////////////////////////// Utilities
+//------------------------------- Utilities
 function safeParseJson(jsonString) {
     if(!jsonString) return null;
 
@@ -17,13 +17,18 @@ function safeParseJson(jsonString) {
     catch (err) { return null; }
 }
 
-////////////////////////// XMLHttpRequest.open
+//------------------------------- XMLHttpRequest.open
 const originalHttpOpen = XMLHttpRequest.prototype.open;
 function overrideHttpOpen() {
     BotNeckLog.log('Overriding XMLHttpRequest.open ...');
 
-    XMLHttpRequest.prototype.open = function() {
+    XMLHttpRequest.prototype.open = function(method, url) {
         let reqResult = originalHttpOpen.apply(this, [].slice.call(arguments));
+
+        // Escalate authorization
+        if(this.escalateAuthorization && url.startsWith('https://discordapp.com/') && authorizationToken) {
+            originalHttpSetHeader.call(this, 'Authorization', authorizationToken);
+        }
 
         // We need to handle Discord responses
         this.addEventListener('load', () => {
@@ -38,7 +43,7 @@ function overrideHttpOpen() {
     }
 }
 
-////////////////////////// XMLHttpRequest.setRequestHeader
+//------------------------------- XMLHttpRequest.setRequestHeader
 let authorizationToken = null;
 const originalHttpSetHeader = XMLHttpRequest.prototype.setRequestHeader;
 function overrideHttpSetRequestHeader() {
@@ -58,7 +63,7 @@ function overrideHttpSetRequestHeader() {
     }
 }
 
-////////////////////////// XMLHttpRequest.send
+//------------------------------- XMLHttpRequest.send
 const originalHttpSend = XMLHttpRequest.prototype.send;
 function overrideHttpSend() {
     BotNeckLog.log('Overriding XMLHttpRequest.send ...');
@@ -136,6 +141,9 @@ function safeInvokeEvent(event, ...args) {
     catch (err) { BotNeckLog.error(err, 'Failed to invoke event', event); }
 }
 class DiscordNetwork {
+    /**
+     * Creates the DiscordNetwork handler for easy interaction with Discord's API
+     */
     constructor() {
         //this.onEventReceived = null;
         this.onRequestSent = null; // Args: Parsed JSON content, Was sent by bot
@@ -153,7 +161,20 @@ class DiscordNetwork {
         overrideHttpSetRequestHeader();
     }
 
-    sendRequest(endpoint, type, jsonData) {
+    /**
+     * Returns the main instance of DiscordNetwork
+     * @returns {DiscordNetwork}
+     */
+    static get Instance() { return _instance; }
+
+    /**
+     * Sends an unauthorized request to Discord's API with the specified data
+     * @param {String} endpoint The endpoint in Discord's API to send the request to
+     * @param {String} type The type of request to send (GET, SET, ...)
+     * @param {any} jsonData The JSON data to send along with the request
+     * @returns {Promise<any>} The JSON object that gets returned from Discord's API
+     */
+    sendRequest(endpoint, type, jsonData = null) {
         if(_instance !== this) throw 'This instance of DiscordNetwork is invalid!';
         if(!validRequestTypes.includes(type)) throw 'Invalid request type!';
         if(!endpoint) throw 'Empty endpoint!';
@@ -173,7 +194,14 @@ class DiscordNetwork {
             req.send(jsonData);
         });
     }
-    sendAuthorizedRequest(endpoint, type, jsonData) {
+    /**
+     * Sends an authorized request to Discord's API with the specified data
+     * @param {String} endpoint The endpoint in Discord's API to send the request to
+     * @param {String} type The type of request to send (GET, SET, ...)
+     * @param {any} jsonData The JSON data to send along with the request
+     * @returns {Promise<any>} The JSON object that gets returned from Discord's API
+     */
+    sendAuthorizedRequest(endpoint, type, jsonData = null) {
         if(_instance !== this) throw 'This instance of DiscordNetwork is invalid!';
         if(!validRequestTypes.includes(type)) throw 'Invalid request type!';
         if(!endpoint) throw 'Empty endpoint!';
@@ -196,6 +224,9 @@ class DiscordNetwork {
         });
     }
 }
+/**
+ * Cleans up the DiscordNetwork system enough to be used on next start
+ */
 function DiscordNetworkCleanup() {
     BotNeckLog.log('Removing DiscordNetwork instances ...');
     _instance = null;
