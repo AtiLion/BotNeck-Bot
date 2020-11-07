@@ -17,4 +17,15 @@ class BotNeckConfig {
      * @param {String} prefix
      */
     set Prefix(prefix) { this.config.prefix = prefix; }
+
+    /**
+     * Should an error be displayed if a command is not found
+     * @returns {Boolean}
+     */
+    get ErrorOnCommandNotFound() { return this.config.errorOnCommandNotFound; }
+    /**
+     * Should an error be displayed if a command is not found
+     * @param {Boolean} errorOnCommandNotFound
+     */
+    set ErrorOnCommandNotFound(errorOnCommandNotFound) { this.config.errorOnCommandNotFound = errorOnCommandNotFound; }
 }

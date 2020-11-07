@@ -3,7 +3,8 @@ class DiscordClientMessage {
      * Creates an easy to use client message wrapper
      * @param {any} messageObject The raw client message object
      */
-    constructor(messageObject) {
+    constructor(messageObject = null) {
+        if(!messageObject) messageObject = {};
         this.message = messageObject;
     }
 

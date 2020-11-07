@@ -1,16 +1,30 @@
-const { DiscordClientMessage } = require('../api/DiscordAPI/DiscordMessage');
+const { DiscordClientMessage } = require('../api/DiscordAPI');
+const { BotNeckConfig } = require('./configParsers');
+const BotNeckCommand = require('../api/BotNeckCommand');
+const BotNeckLog = require('../api/BotNeckLog');
 
 let _instance = null;
 module.exports = class CommandManager {
     /**
      * Creates the CommandManager to easily work with commands
+     * @param {BotNeckConfig} config The parsed configuration object for BotNeck
      */
-    constructor() {
+    constructor(config) {
         if(_instance) {
             BotNeckLog.error('CommandManager instance already exists!');
             return;
         }
         _instance = this;
+        
+        // Setup the memory objects
+        /**
+         * @type {[BotNeckCommand]}
+         */
+        this.registeredCommands = [];
+
+        // Get out the data from the config
+        this.prefix = config.Prefix;
+        this.errorOnCommandNotFound = config.ErrorOnCommandNotFound;
     }
 
     /**
@@ -25,5 +39,104 @@ module.exports = class CommandManager {
      */
     handleMessage(message) {
         if(!message || !message.Content) return;
+        if(message.Content.startsWith(this.prefix)) return;
+
+        let rawCommand = message.Content.substring(this.prefix.length); // Remove the prefix
+
+        // Find the correct command, parse and execute
+        for(let command of this.registeredCommands) {
+            if(!rawCommand.startsWith(command.Command)) continue;
+
+            let commandArgs = this.parseCommand(rawCommand);
+
+            command.execute(message, commandArgs);
+            return;
+        }
+
+        // Handle when not found
+        BotNeckLog.log('Failed to find command for message', message);
+        if(!this.errorOnCommandNotFound) return;
+    }
+    /**
+     * Parses the raw command message and returns the arguments
+     * @param {String} rawCommand The raw command message to parse
+     * @returns {any} The parsed arguments in the raw command message
+     */
+    parseCommand(rawCommand) {
+        let broken = rawCommand.split(' ');
+        let builtArgs = broken.slice(1);
+        let args = {}
+
+        // Build args
+        {
+            let inValue = false;
+            let name = null;
+            let value = null;
+
+            function pushArg(val) {
+                args[name] = BotNeckInternals.buildArgType(val);
+                name = null;
+                value = null;
+            }
+
+            for(let arg of builtArgs) {
+                if(!inValue && arg.includes('=')) { // key=value argument
+                    let brokenArg = arg.split('=');
+                    let builtValue = '';
+
+                    name = brokenArg[0];
+                    builtValue = arg.substring(name.length + 1);
+                    if(builtValue.startsWith('"')) { // It's a string
+                        if(builtValue.endsWith('"')) { // Single argument string
+                            pushArg(builtValue.substring(1, builtValue.length - 1));
+                            continue;
+                        }
+
+                        value = builtValue.substring(1);
+                        inValue = true;
+                        continue;
+                    }
+                    pushArg(builtValue);
+                }
+                else if(!inValue) { // lone argument
+                    name = Object.keys(args).length;
+                    if(arg.startsWith('"')) {
+                        if(arg.endsWith('"')) {
+                            pushArg(arg.substring(1, arg.length - 1));
+                            continue;
+                        }
+
+                        value = arg.substring(1);
+                        inValue = true;
+                        continue;
+                    }
+                    pushArg(arg);
+                }
+                else { // In the value
+                    if(arg.endsWith('"')) {
+                        value += ' ' + arg.substring(0, arg.length - 1);
+                        inValue = false;
+                        pushArg(value);
+                        continue;
+                    }
+
+                    value += ' ' + arg;
+                }
+            }
+        }
+        return args
+    }
+
+    /**
+     * Register the command to the BotNeck bot
+     * @param {BotNeckCommand} command The command object to register to the bot
+     */
+    registerCommand(command) {
+    }
+    /**
+     * Unregister the command from the BotNeck bot
+     * @param {BotNeckCommand} command The command object to unregister from the bot
+     */
+    unregisterCommand(command) {
     }
 }
