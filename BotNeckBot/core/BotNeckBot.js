@@ -2,27 +2,73 @@ const BotNeckLog = require('../api/BotNeckLog');
 const ConfigManager = require('./ConfigManager');
 const { DiscordNetwork, DiscordNetworkCleanup } = require('./DiscordNetwork');
 const ModuleManager = require('./ModuleManager');
+const CommandManager = require('./CommandManager');
+const BotNeckClient = require('../api/BotNeckClient');
+const { DiscordClientMessage } = require('../api/DiscordAPI/DiscordMessage');
+
+/**
+ * @type {ConfigManager}
+ */
+let _configManager;
+/**
+ * @type {DiscordNetwork}
+ */
+let _discordNetwork;
+/**
+ * @type {CommandManager}
+ */
+let _commandManager;
+/**
+ * @type {ModuleManager}
+ */
+let _moduleManager;
 
 module.exports = class BotNeckBot {
     constructor() {
-        this.discordNetwork = new DiscordNetwork();
-        this.moduleManager = new ModuleManager();
-        this.configManager = new ConfigManager();
+        _configManager = new ConfigManager();
+        _configManager.loadConfiguration('BotNeck')
+        .then(config => {
+            _discordNetwork = new DiscordNetwork();
+            _discordNetwork.onRequestSent = (requestJson, isBotRequest) => {
+                if(requestJson.content === null) return;
+                BotNeckClient.onMessageSend.invoke(new DiscordClientMessage(requestJson), isBotRequest);
+            }
 
-        this.moduleManager.loadModules();
+            _commandManager = new CommandManager(config);
+            BotNeckClient.onMessageSend.addEventCallback((message, isBotRequest) => {
+                if(isBotRequest) return;
+                _commandManager.handleMessage(message);
+            });
+
+            _moduleManager = new ModuleManager();
+            _moduleManager.loadModules();
+        })
+        .catch(err => BotNeckLog.error(err, 'Failed to load BotNeck configuration!'));
     }
     destroy() {
-        BotNeckLog.log('Cleaning up DiscordNetwork ...');
-        DiscordNetworkCleanup();
-        delete this.discordNetwork;
+        if(_moduleManager) {
+            BotNeckLog.log('Cleaning up ModuleManager ...');
+            _moduleManager.destroy();
+            delete _moduleManager;
+        }
 
-        BotNeckLog.log('Cleaning up ModuleManager ...');
-        this.moduleManager.destroy();
-        delete this.moduleManager;
+        if(_commandManager) {
+            BotNeckLog.log('Cleaning up CommandManager ...');
+            _commandManager.destroy();
+            delete _commandManager;
+        }
 
-        BotNeckLog.log('Cleaning up ConfigManager ...');
-        this.configManager.destroy();
-        delete this.configManager;
+        if(_discordNetwork) {
+            BotNeckLog.log('Cleaning up DiscordNetwork ...');
+            DiscordNetworkCleanup();
+            delete _discordNetwork;
+        }
+
+        if(_configManager) {
+            BotNeckLog.log('Cleaning up ConfigManager ...');
+            _configManager.destroy();
+            delete _configManager;
+        }
     }
 
     static get Name() { return 'BotNeck Bot'; }

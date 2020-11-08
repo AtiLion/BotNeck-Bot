@@ -2,7 +2,6 @@ const { DiscordClientMessage } = require('../api/DiscordAPI');
 const { BotNeckConfig } = require('./configParsers');
 const BotNeckCommand = require('../api/BotNeckCommand');
 const BotNeckLog = require('../api/BotNeckLog');
-const DiscordEmbed = require('../api/DiscordAPI/DiscordEmbed');
 
 let _instance = null;
 module.exports = class CommandManager {
@@ -26,6 +25,10 @@ module.exports = class CommandManager {
         // Get out the data from the config
         this.prefix = config.Prefix;
         this.errorOnCommandNotFound = config.ErrorOnCommandNotFound;
+    }
+    destroy() {
+        BotNeckLog.log('Cleaning up CommandManager ...');
+        _instance = null;
     }
 
     /**
