@@ -15,7 +15,7 @@ module.exports = {
      * @returns {Promise<any>} The JSON object that gets returned from Discord's API
      */
     sendRequest(endpoint, type, jsonData = null) {
-        DiscordNetwork.Instance.sendRequest(endpoint, type, jsonData);
+        return DiscordNetwork.Instance.sendRequest(endpoint, type, jsonData);
     },
     /**
      * Sends an authorized request to Discord's API with the specified data
@@ -25,6 +25,6 @@ module.exports = {
      * @returns {Promise<any>} The JSON object that gets returned from Discord's API
      */
     sendAuthorizedRequest(endpoint, type, jsonData = null) {
-        DiscordNetwork.Instance.sendAuthorizedRequest(endpoint, type, jsonData);
+        return DiscordNetwork.Instance.sendAuthorizedRequest(endpoint, type, jsonData);
     }
 }
