@@ -1,4 +1,5 @@
 const { DiscordUser } = require('../DiscordAPI');
+const BotNeckLog = require('../BotNeckLog');
 
 module.exports = class BotNeckAPI {
 	static getCurrentServerId() { return window.location.pathname.split('/')[2]; }
@@ -10,7 +11,9 @@ module.exports = class BotNeckAPI {
 		callback(DiscordUser.current);
 	}
 	static getTargetUser(apiKey, userId, callback) {
-		callback(DiscordUser.getFromId(userId));
+		DiscordUser.getFromId(userId)
+		.then(user => callback(user.discordData))
+		.catch(err => { BotNeckLog.error(err, 'Failed to get target user!'); callback(null); })
 	}
 
 	static setAuthHeader(req, apiKey) {
