@@ -95,6 +95,95 @@ class DiscordEmbed {
      * @param {DiscordEmbedImage} image
      */
     set Image(image) { this.embed.image = image.image; }
+
+    /**
+     * Thumbnail information
+     * @returns {DiscordEmbedThumbnail}
+     */
+    get Thumbnail() { return new DiscordEmbedThumbnail(this.embed.thumbnail = this.embed.thumbnail || {}); }
+    /**
+     * Thumbnail information
+     * @param {DiscordEmbedThumbnail} thumbnail
+     */
+    set Thumbnail(thumbnail) { this.embed.thumbnail = thumbnail.thumbnail; }
+
+    /**
+     * Video information
+     * @returns {DiscordEmbedVideo}
+     */
+    get Video() { return new DiscordEmbedVideo(this.embed.video = this.embed.video || {}); }
+    /**
+     * Video information
+     * @param {DiscordEmbedVideo} video
+     */
+    set Video(video) { this.embed.video = video.video; }
+
+    /**
+     * Provider information
+     * @returns {DiscordEmbedProvider}
+     */
+    get Provider() { return new DiscordEmbedProvider(this.embed.provider = this.embed.provider || {}); }
+    /**
+     * Provider information
+     * @param {DiscordEmbedProvider} provider
+     */
+    set Provider(provider) { this.embed.provider = provider.provider; }
+
+    /**
+     * Author information
+     * @returns {DiscordEmbedAuthor}
+     */
+    get Author() { return new DiscordEmbedAuthor(this.embed.author = this.embed.author || {}); }
+    /**
+     * Author information
+     * @param {DiscordEmbedAuthor} author
+     */
+    set Author(author) { this.embed.author = author.author; }
+
+    /**
+     * Fields information
+     * @returns {[DiscordEmbedField]}
+     */
+    get Fields() {
+        let outFields = [];
+
+        if(!this.embed.fields) return outFields;
+        for(let field of this.embed.fields)
+            outFields.push(new DiscordEmbedField(field));
+        return outFields;
+    }
+    /**
+     * Fields information
+     * @param {[DiscordEmbedField]} fields
+     */
+    set Fields(fields) {
+        let outFields = [];
+
+        if(!fields) return this.embed.fields = [];
+        for(let field of fields)
+            outFields.push(field.field);
+        this.embed.fields = outFields;
+    }
+    /**
+     * Adds field to embed
+     * @param {String} name The name of the field
+     * @param {String} value The value of the field
+     * @param {Boolean} inline Whether or not this field should display inline
+     */
+    addField(name, value, inline = false) {
+        if(!this.embed.fields) this.embed.fields = [];
+
+        this.embed.fields.push({ name, value, inline });
+    }
+    /**
+     * Removes a field using an index
+     * @param {Number} index The index of the field to remove
+     */
+    removeField(index) {
+        if(!this.embed.fields) return this.embed.fields = [];
+
+        this.embed.fields.splice(index, 1);
+    }
 }
 
 class DiscordEmbedFooter {
@@ -196,4 +285,244 @@ class DiscordEmbedImage {
     set Width(width) { this.image.width = width; }
 }
 
-module.exports = { DiscordEmbed, DiscordEmbedFooter, DiscordEmbedImage }
+class DiscordEmbedThumbnail {
+    /**
+     * Creates an easy to use thumbnail wrapper
+     * @param {any} thumbnailObject The raw thumbnail object
+     */
+    constructor(thumbnailObject = null) {
+        if(!thumbnailObject) thumbnailObject = {};
+        this.thumbnail = thumbnailObject;
+    }
+
+    /**
+     * Source url of thumbnail (only supports http(s) and attachments)
+     * @returns {String}
+     */
+    get Url() { return this.thumbnail.url; }
+    /**
+     * Source url of thumbnail (only supports http(s) and attachments)
+     * @param {String} url
+     */
+    set Url(url) { this.thumbnail.url = url; }
+
+    /**
+     * A proxied url of the thumbnail
+     * @returns {String}
+     */
+    get ProxyUrl() { return this.thumbnail.proxy_url; }
+    /**
+     * A proxied url of the thumbnail
+     * @param {String} proxy_url
+     */
+    set ProxyUrl(proxy_url) { this.thumbnail.proxy_url = proxy_url; }
+
+    /**
+     * Height of thumbnail
+     * @returns {Number}
+     */
+    get Height() { return this.thumbnail.height; }
+    /**
+     * Height of thumbnail
+     * @param {Number} height
+     */
+    set Height(height) { this.thumbnail.height = height; }
+
+    /**
+     * Width of thumbnail
+     * @returns {Number}
+     */
+    get Width() { return this.thumbnail.width; }
+    /**
+     * Width of thumbnail
+     * @param {Number} width
+     */
+    set Width(width) { this.thumbnail.width = width; }
+}
+
+class DiscordEmbedVideo {
+    /**
+     * Creates an easy to use video wrapper
+     * @param {any} videoObject The raw video object
+     */
+    constructor(videoObject = null) {
+        if(!videoObject) videoObject = {};
+        this.video = videoObject;
+    }
+
+    /**
+     * Source url of video
+     * @returns {String}
+     */
+    get Url() { return this.video.url; }
+    /**
+     * Source url of video
+     * @param {String} url
+     */
+    set Url(url) { this.video.url = url; }
+
+    /**
+     * Height of video
+     * @returns {Number}
+     */
+    get Height() { return this.video.height; }
+    /**
+     * Height of video
+     * @param {Number} height
+     */
+    set Height(height) { this.video.height = height; }
+
+    /**
+     * Width of video
+     * @returns {Number}
+     */
+    get Width() { return this.video.width; }
+    /**
+     * Width of video
+     * @param {Number} width
+     */
+    set Width(width) { this.video.width = width; }
+}
+
+class DiscordEmbedProvider {
+    /**
+     * Creates an easy to use provider wrapper
+     * @param {any} providerObject The raw provider object
+     */
+    constructor(providerObject = null) {
+        if(!providerObject) providerObject = {};
+        this.provider = providerObject;
+    }
+
+    /**
+     * Name of provider
+     * @returns {String}
+     */
+    get Name() { return this.provider.name; }
+    /**
+     * Name of provider
+     * @param {String} name
+     */
+    set Name(name) { this.provider.name = name; }
+
+    /**
+     * Url of provider
+     * @returns {String}
+     */
+    get Url() { return this.provider.url; }
+    /**
+     * Url of provider
+     * @param {String} url
+     */
+    set Url(url) { this.provider.url = url; }
+}
+
+class DiscordEmbedAuthor {
+    /**
+     * Creates an easy to use author wrapper
+     * @param {any} authorObject The raw author object
+     */
+    constructor(authorObject = null) {
+        if(!authorObject) authorObject = {};
+        this.author = authorObject;
+    }
+
+    /**
+     * Name of author
+     * @returns {String}
+     */
+    get Name() { return this.author.name; }
+    /**
+     * Name of author
+     * @param {String} name
+     */
+    set Name(name) { this.author.name = name; }
+
+    /**
+     * Url of author
+     * @returns {String}
+     */
+    get Url() { return this.author.url; }
+    /**
+     * Url of author
+     * @param {String} url
+     */
+    set Url(url) { this.author.url = url; }
+
+    /**
+     * Url of author icon (only supports http(s) and attachments)
+     * @returns {String}
+     */
+    get IconUrl() { return this.author.icon_url; }
+    /**
+     * Url of author icon (only supports http(s) and attachments)
+     * @param {String} icon_url
+     */
+    set IconUrl(icon_url) { this.author.icon_url = icon_url; }
+
+    /**
+     * A proxied url of author icon
+     * @returns {String}
+     */
+    get ProxyIconUrl() { return this.author.proxy_icon_url; }
+    /**
+     * A proxied url of author icon
+     * @param {String} proxy_icon_url
+     */
+    set ProxyIconUrl(proxy_icon_url) { this.author.proxy_icon_url = proxy_icon_url; }
+}
+
+class DiscordEmbedField {
+    /**
+     * Creates an easy to use field wrapper
+     * @param {any} fieldObject The raw field object
+     */
+    constructor(fieldObject = null) {
+        if(!fieldObject) fieldObject = {};
+        this.field = fieldObject;
+    }
+
+    /**
+     * Name of the field
+     * @returns {String}
+     */
+    get Name() { return this.field.name; }
+    /**
+     * Name of the field
+     * @param {String} name
+     */
+    set Name(name) { this.field.name = name; }
+
+    /**
+     * Value of the field
+     * @returns {String}
+     */
+    get Value() { return this.field.value; }
+    /**
+     * Value of the field
+     * @param {String} value
+     */
+    set Value(value) { this.field.value = value; }
+
+    /**
+     * Whether or not this field should display inline
+     * @returns {Boolean}
+     */
+    get Inline() { return this.field.inline; }
+    /**
+     * Whether or not this field should display inline
+     * @param {Boolean} inline
+     */
+    set Inline(inline) { this.field.inline = inline; }
+}
+
+module.exports = {
+    DiscordEmbed,
+    DiscordEmbedFooter,
+    DiscordEmbedImage,
+    DiscordEmbedThumbnail,
+    DiscordEmbedVideo,
+    DiscordEmbedProvider,
+    DiscordEmbedAuthor,
+    DiscordEmbedField
+}

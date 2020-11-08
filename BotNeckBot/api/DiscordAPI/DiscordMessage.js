@@ -1,3 +1,5 @@
+const { DiscordEmbed } = require('./DiscordEmbed');
+
 class DiscordClientMessage {
     /**
      * Creates an easy to use client message wrapper
@@ -19,7 +21,16 @@ class DiscordClientMessage {
      */
     set Content(content) { this.message.content = content; }
 
-    //TODO: Implement Embeds!
+    /**
+     * Embedded rich content
+     * @returns {DiscordEmbed}
+     */
+    get Embed() { return new DiscordEmbed(this.message.embed = this.message.embed || {}); }
+    /**
+     * Embedded rich content
+     * @param {DiscordEmbed} embed
+     */
+    set Embed(embed) { this.message.embed = embed.embed; }
     
     /**
      * A nonce that can be used for optimistic message sending

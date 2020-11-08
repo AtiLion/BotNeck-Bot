@@ -2,6 +2,7 @@ const { DiscordClientMessage } = require('../api/DiscordAPI');
 const { BotNeckConfig } = require('./configParsers');
 const BotNeckCommand = require('../api/BotNeckCommand');
 const BotNeckLog = require('../api/BotNeckLog');
+const DiscordEmbed = require('../api/DiscordAPI/DiscordEmbed');
 
 let _instance = null;
 module.exports = class CommandManager {
@@ -56,6 +57,14 @@ module.exports = class CommandManager {
         // Handle when not found
         BotNeckLog.log('Failed to find command for message', message);
         if(!this.errorOnCommandNotFound) return;
+
+        message.Content = '';
+        message.Embed = {
+            Title: 'BotNeck Error',
+            Type: 'rich',
+            Description: 'Failed to find specified command!',
+            Color: 0xff6e00
+        }
     }
     /**
      * Parses the raw command message and returns the arguments
