@@ -4,7 +4,7 @@ const { DiscordNetwork, DiscordNetworkCleanup } = require('./DiscordNetwork');
 const ModuleManager = require('./ModuleManager');
 const CommandManager = require('./CommandManager');
 const BotNeckClient = require('../api/BotNeckClient');
-const { DiscordClientMessage } = require('../api/DiscordAPI/DiscordMessage');
+const { DiscordClientMessage } = require('../api/DiscordAPI');
 
 /**
  * @type {ConfigManager}

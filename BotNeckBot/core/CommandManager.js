@@ -144,11 +144,20 @@ module.exports = class CommandManager {
      * @param {BotNeckCommand} command The command object to register to the bot
      */
     registerCommand(command) {
+        if(!command || !(command instanceof BotNeckCommand)) return;
+        if(this.registeredCommands.includes(command)) return;
+
+        this.registeredCommands.push(command);
     }
     /**
      * Unregister the command from the BotNeck bot
      * @param {BotNeckCommand} command The command object to unregister from the bot
      */
     unregisterCommand(command) {
+        if(!command || !(command instanceof BotNeckCommand)) return;
+        if(!this.registeredCommands.includes(command)) return;
+
+        let index = this.registeredCommands.indexOf(command);
+        this.registeredCommands.splice(index, 1);
     }
 }
