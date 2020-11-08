@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const BotNeckLog = require('../api/BotNeckLog');
-const { v2Loader } = require('./loaders');
+const { v2Loader, GenericLoader } = require('./loaders');
 
 let _instance = null;
 module.exports = class ModuleManager {
@@ -11,6 +11,9 @@ module.exports = class ModuleManager {
      */
     constructor() {
         this.modulesDirectory = path.resolve(__dirname, '../modules');
+        /**
+         * @type {[GenericLoader]}
+         */
         this.modules = [];
 
         if(_instance) {
@@ -53,6 +56,12 @@ module.exports = class ModuleManager {
         const requiredModule = require(modulePath);
         if(v2Loader.verifyFormat(modulePath, requiredModule)) {
             BotNeckLog.log('Loading v2 module', moduleName);
+            let modLoader = new v2Loader(modulePath, requiredModule);
+
+            if(modLoader.load()) {
+                this.modules.push(modLoader);
+                BotNeckLog.log('Loaded v2 module', moduleName);
+            }
         }
     }
     /**

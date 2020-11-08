@@ -1,4 +1,5 @@
 const { DiscordClientMessage } = require('./DiscordAPI');
+const CommandManager = require('../core/CommandManager');
 
 module.exports = class BotNeckCommand {
     /**
@@ -23,4 +24,19 @@ module.exports = class BotNeckCommand {
      * @param {any} args The arguments of the command
      */
     execute(message, args) {}
+
+    /**
+     * Registers a command to the bot
+     * @param {BotNeckCommand} instance The command instance to register
+     */
+    static registerCommand(instance) {
+        CommandManager.Instance.registerCommand(instance);
+    }
+    /**
+     * Unregister a command from the bot
+     * @param {BotNeckCommand} instance The command instance to unregister
+     */
+    static unregisterCommand(instance) {
+        CommandManager.Instance.unregisterCommand(instance);
+    }
 }

@@ -1,6 +1,6 @@
 const BotNeckCommand = require('../BotNeckCommand');
 
-module.exports = class V2Command extends BotNeckCommand {
+module.exports = class v2Command extends BotNeckCommand {
     constructor(command, description, usage, exec) {
         this.command = command;
         this.description = description;

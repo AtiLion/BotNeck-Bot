@@ -1,5 +1,8 @@
+const fs = require('fs');
 const GenericLoader = require('./GenericLoader');
 const BotNeckLog = require('../../api/BotNeckLog');
+const { v2Command } = require('../../api/v2Api');
+const BotNeckCommand = require('../../api/BotNeckCommand');
 
 module.exports = class v2Loader extends GenericLoader {
     /**
@@ -9,12 +12,36 @@ module.exports = class v2Loader extends GenericLoader {
      */
     constructor(file, module) {
         super(file, module, 'v2Loader');
+
+        this.commandModule = null;
     }
 
     /**
      * Loads the module and starts it
      */
-    load() {}
+    load() {
+        if(!fs.existsSync(this.file)) return false;
+        const code = fs.readFileSync(this.file).toString();
+        const name = file.slice(0, -('.botneck.js'.length));
+
+        try {
+            let generatedCode = 'const { BotNeckAPI } = require("../../api/v2Api");';
+            generatedCode += '(function() {';
+            generatedCode += 'let APIKey = "No longer required";';
+            generatedCode += '\n' + code + '\n';
+            generatedCode += `return new ${name}();`
+            generatedCode += '})();';
+
+            let oldModule = eval(generatedCode);
+            commandModule = new v2Command(oldModule.command, oldModule.description, oldModule.usage, oldModule.execute);
+
+            BotNeckCommand.registerCommand(this.commandModule);
+            return true;
+        } catch (err) {
+            BotNeckLog.error(err, 'Failed to load module', this.file);
+            return false;
+        }
+    }
     /**
      * Stops and unloads the module
      */
@@ -24,7 +51,7 @@ module.exports = class v2Loader extends GenericLoader {
      * Verifies the module's format if the v2 loader can load the module format
      * @param {String} file The file path to the module
      * @param {any} module The module.exports of the module
-     * @returns {boolean} If the v2 loader can load the module's format
+     * @returns {Boolean} If the v2 loader can load the module's format
      */
     static verifyFormat(file, module) {
         if(module) return false;
@@ -36,6 +63,9 @@ module.exports = class v2Loader extends GenericLoader {
         // Make an meh sandbox
         {
             try {
+                if(!fs.existsSync(file)) return false;
+                const code = fs.readFileSync(file).toString();
+
                 let generatedCode = '(function(){';
                 generatedCode += `let APIKey = 'No longer required';`;
                 generatedCode += '\n' + code + '\n';
