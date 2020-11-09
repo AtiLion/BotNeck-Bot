@@ -5,7 +5,7 @@ const _onMessageSend = new BotNeckEvent();
 const _onMessageReceived = new BotNeckEvent();
 
 module.exports = {
-    onMessageSend = _onMessageSend,
+    onMessageSend: _onMessageSend,
 
     /**
      * Sends an unauthorized request to Discord's API with the specified data
@@ -14,7 +14,7 @@ module.exports = {
      * @param {any} jsonData The JSON data to send along with the request
      * @returns {Promise<any>} The JSON object that gets returned from Discord's API
      */
-    sendRequest(endpoint, type, jsonData = null) {
+    sendRequest: function(endpoint, type, jsonData = null) {
         return DiscordNetwork.Instance.sendRequest(endpoint, type, jsonData);
     },
     /**
@@ -24,7 +24,7 @@ module.exports = {
      * @param {any} jsonData The JSON data to send along with the request
      * @returns {Promise<any>} The JSON object that gets returned from Discord's API
      */
-    sendAuthorizedRequest(endpoint, type, jsonData = null) {
+    sendAuthorizedRequest: function(endpoint, type, jsonData = null) {
         return DiscordNetwork.Instance.sendAuthorizedRequest(endpoint, type, jsonData);
     }
 }

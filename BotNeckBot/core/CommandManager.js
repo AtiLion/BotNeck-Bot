@@ -1,4 +1,4 @@
-const { DiscordClientMessage } = require('../api/DiscordAPI');
+const { DiscordClientMessage, DiscordEmbed } = require('../api/DiscordAPI');
 const { BotNeckConfig } = require('./configParsers');
 const BotNeckCommand = require('../api/BotNeckCommand');
 const BotNeckLog = require('../api/BotNeckLog');
@@ -43,14 +43,12 @@ module.exports = class CommandManager {
      */
     handleMessage(message) {
         if(!message || !message.Content) return;
-        if(message.Content.startsWith(this.prefix)) return;
-
+        if(!message.Content.startsWith(this.prefix)) return;
         let rawCommand = message.Content.substring(this.prefix.length); // Remove the prefix
 
         // Find the correct command, parse and execute
         for(let command of this.registeredCommands) {
             if(!rawCommand.startsWith(command.Command)) continue;
-
             let commandArgs = this.parseCommand(rawCommand);
 
             command.execute(message, commandArgs);
@@ -58,16 +56,14 @@ module.exports = class CommandManager {
         }
 
         // Handle when not found
-        BotNeckLog.log('Failed to find command for message', message);
+        BotNeckLog.log('Failed to find command for message', message.Content);
         if(!this.errorOnCommandNotFound) return;
 
         message.Content = '';
-        message.Embed = {
-            Title: 'BotNeck Error',
-            Type: 'rich',
-            Description: 'Failed to find specified command!',
-            Color: 0xff6e00
-        }
+        message.Embed = new DiscordEmbed();
+        message.Embed.Title = 'BotNeck Error';
+        message.Embed.Description = 'Failed to find specified command!';
+        message.Embed.Color = 0xff6e00;
     }
     /**
      * Parses the raw command message and returns the arguments
@@ -144,7 +140,7 @@ module.exports = class CommandManager {
      * @param {BotNeckCommand} command The command object to register to the bot
      */
     registerCommand(command) {
-        if(!command || !(command instanceof BotNeckCommand)) return;
+        if(!command) return;
         if(this.registeredCommands.includes(command)) return;
 
         this.registeredCommands.push(command);
@@ -154,7 +150,7 @@ module.exports = class CommandManager {
      * @param {BotNeckCommand} command The command object to unregister from the bot
      */
     unregisterCommand(command) {
-        if(!command || !(command instanceof BotNeckCommand)) return;
+        if(!command) return;
         if(!this.registeredCommands.includes(command)) return;
 
         let index = this.registeredCommands.indexOf(command);

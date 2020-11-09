@@ -1,4 +1,4 @@
-class BotNeckConfig {
+module.exports = class BotNeckConfig {
     /**
      * Creates a BotNeck config wrapper for the specified JSON
      * @param {any} configObject The raw config JSON to wrap around

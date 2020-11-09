@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const GenericLoader = require('./GenericLoader');
 const BotNeckLog = require('../../api/BotNeckLog');
 const { v2Command } = require('../../api/v2Api');
@@ -22,7 +23,7 @@ module.exports = class v2Loader extends GenericLoader {
     load() {
         if(!fs.existsSync(this.file)) return false;
         const code = fs.readFileSync(this.file).toString();
-        const name = file.slice(0, -('.botneck.js'.length));
+        const name = path.basename(this.file).slice(0, -('.botneck.js'.length));
 
         try {
             let generatedCode = 'const { BotNeckAPI } = require("../../api/v2Api");';
@@ -33,12 +34,12 @@ module.exports = class v2Loader extends GenericLoader {
             generatedCode += '})();';
 
             let oldModule = eval(generatedCode);
-            commandModule = new v2Command(oldModule.command, oldModule.description, oldModule.usage, oldModule.execute);
+            this.commandModule = new v2Command(oldModule.command, oldModule.description, oldModule.usage, oldModule.execute);
 
             BotNeckCommand.registerCommand(this.commandModule);
             return true;
         } catch (err) {
-            BotNeckLog.error(err, 'Failed to load module', this.file);
+            BotNeckLog.error(err, 'Failed to load module', name);
             return false;
         }
     }
@@ -54,11 +55,11 @@ module.exports = class v2Loader extends GenericLoader {
      * @returns {Boolean} If the v2 loader can load the module's format
      */
     static verifyFormat(file, module) {
-        if(module) return false;
+        if(Object.keys(module).length > 0) return false;
         if(!file.endsWith('.botneck.js')) return false;
 
         // Get required variables
-        const name = file.slice(0, -('.botneck.js'.length));
+        const name = path.basename(file).slice(0, -('.botneck.js'.length));
 
         // Make an meh sandbox
         {

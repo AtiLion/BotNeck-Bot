@@ -37,8 +37,8 @@ module.exports = class ConfigManager {
      * @returns {Promise<any>} The parsed configuration or null
      */
     loadConfiguration(configName) {
-        return Promise((resolve, reject) => {
-            const configPath = path.resolve(this.configDirectory, configName);
+        return new Promise((resolve, reject) => {
+            const configPath = path.resolve(this.configDirectory, configName + '.json');
 
             if(!fs.existsSync(configPath))
                 return reject('Configuration file does not exist');
@@ -63,7 +63,7 @@ module.exports = class ConfigManager {
      * @returns {Promise} Called resolve if successful or reject if file failed to write
      */
     saveConfiguration(configName, configObject) {
-        return Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const configPath = path.resolve(this.configDirectory, configName);
 
             if(!configObject) return reject('Configuration object cannot be null');

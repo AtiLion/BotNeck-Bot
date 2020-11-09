@@ -52,6 +52,7 @@ module.exports = class ModuleManager {
     loadModule(moduleName) {
         const modulePath = path.resolve(this.modulesDirectory, moduleName);
         if(!fs.existsSync(modulePath)) return;
+        BotNeckLog.log('Initializing module', moduleName);
 
         const requiredModule = require(modulePath);
         if(v2Loader.verifyFormat(modulePath, requiredModule)) {

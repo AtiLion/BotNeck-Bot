@@ -30,7 +30,7 @@ class DiscordClientMessage {
      * Embedded rich content
      * @param {DiscordEmbed} embed
      */
-    set Embed(embed) { this.message.embed = embed.embed; }
+    set Embed(embed) { this.message.embed = embed.embed; } // TODO: Embeds from objects
     
     /**
      * A nonce that can be used for optimistic message sending

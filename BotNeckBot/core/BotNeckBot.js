@@ -5,6 +5,7 @@ const ModuleManager = require('./ModuleManager');
 const CommandManager = require('./CommandManager');
 const BotNeckClient = require('../api/BotNeckClient');
 const { DiscordClientMessage } = require('../api/DiscordAPI');
+const { BotNeckConfig } = require('./configParsers');
 
 /**
  * @type {ConfigManager}
@@ -28,13 +29,15 @@ module.exports = class BotNeckBot {
         _configManager = new ConfigManager();
         _configManager.loadConfiguration('BotNeck')
         .then(config => {
+            const parsedConfig = new BotNeckConfig(config);
+
             _discordNetwork = new DiscordNetwork();
             _discordNetwork.onRequestSent = (requestJson, isBotRequest) => {
                 if(requestJson.content === null) return;
                 BotNeckClient.onMessageSend.invoke(new DiscordClientMessage(requestJson), isBotRequest);
             }
 
-            _commandManager = new CommandManager(config);
+            _commandManager = new CommandManager(parsedConfig);
             BotNeckClient.onMessageSend.addEventCallback((message, isBotRequest) => {
                 if(isBotRequest) return;
                 _commandManager.handleMessage(message);
@@ -47,27 +50,23 @@ module.exports = class BotNeckBot {
     }
     destroy() {
         if(_moduleManager) {
-            BotNeckLog.log('Cleaning up ModuleManager ...');
             _moduleManager.destroy();
-            delete _moduleManager;
+            _moduleManager = null;
         }
 
         if(_commandManager) {
-            BotNeckLog.log('Cleaning up CommandManager ...');
             _commandManager.destroy();
-            delete _commandManager;
+            _commandManager = null;
         }
 
         if(_discordNetwork) {
-            BotNeckLog.log('Cleaning up DiscordNetwork ...');
             DiscordNetworkCleanup();
-            delete _discordNetwork;
+            _discordNetwork = null;
         }
 
         if(_configManager) {
-            BotNeckLog.log('Cleaning up ConfigManager ...');
             _configManager.destroy();
-            delete _configManager;
+            _configManager = null;
         }
     }
 
