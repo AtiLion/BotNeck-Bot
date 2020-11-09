@@ -46,7 +46,9 @@ module.exports = class v2Loader extends GenericLoader {
     /**
      * Stops and unloads the module
      */
-    unload() {}
+    unload() {
+        BotNeckCommand.unregisterCommand(this.commandModule);
+    }
 
     /**
      * Verifies the module's format if the v2 loader can load the module format

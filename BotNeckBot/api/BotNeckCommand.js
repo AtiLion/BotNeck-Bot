@@ -26,6 +26,14 @@ module.exports = class BotNeckCommand {
     execute(message, args) {}
 
     /**
+     * Gets all of the currently registered commands
+     * @returns {[BotNeckCommand]}
+     */
+    static get commandList() {
+        return [...CommandManager.Instance.registeredCommands]; // Duplicate array
+    }
+
+    /**
      * Registers a command to the bot
      * @param {BotNeckCommand} instance The command instance to register
      */

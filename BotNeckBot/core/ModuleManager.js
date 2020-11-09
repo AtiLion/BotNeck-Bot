@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const BotNeckLog = require('../api/BotNeckLog');
-const { v2Loader, GenericLoader } = require('./loaders');
+const { v2Loader, GenericLoader, v3Loader } = require('./loaders');
 
 let _instance = null;
 module.exports = class ModuleManager {
@@ -64,6 +64,15 @@ module.exports = class ModuleManager {
                 BotNeckLog.log('Loaded v2 module', moduleName);
             }
         }
+        else if(v3Loader.verifyFormat(modulePath, requiredModule)) {
+            BotNeckLog.log('Loading v3 module', moduleName);
+            let modLoader = new v3Loader(modulePath, requiredModule);
+
+            if(modLoader.load()) {
+                this.modules.push(modLoader);
+                BotNeckLog.log('Loaded v3 module', moduleName);
+            }
+        }
     }
     /**
      * Loads all modules in the modules directory
@@ -82,8 +91,23 @@ module.exports = class ModuleManager {
         });
     }
 
-    unloadModule() {
+    /**
+     * Unloads the specified module with the module loader
+     * @param {GenericLoader} moduleLoader The loader instance of the module you want to unload
+     */
+    unloadModule(moduleLoader) {
+        if(!moduleLoader || !(moduleLoader instanceof GenericLoader)) return;
+
+        moduleLoader.unload();
+        let index = this.modules.indexOf(moduleLoader);
+        this.modules.splice(index, 1);
+        BotNeckLog.log('Unloaded module', path.basename(moduleLoader.file));
     }
+    /**
+     * Unloads all modules from the modules directory
+     */
     unloadModules() {
+        for(let modLoader of this.modules)
+            this.unloadModule(modLoader);
     }
 }

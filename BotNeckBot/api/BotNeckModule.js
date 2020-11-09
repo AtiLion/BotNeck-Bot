@@ -1,4 +1,4 @@
-const BotNeckCommand = require('./BotNeckCommand');
+const ModuleManager = require('../core/ModuleManager');
 
 module.exports = class BotNeckModule {
     /**
@@ -32,15 +32,10 @@ module.exports = class BotNeckModule {
     onUnload() {}
 
     /**
-     * Registers a command instance to the module
-     * @param {BotNeckCommand} command The command instance to register to the module
+     * Gets the v3 modules that are loaded
+     * @returns {[BotNeckModule]}
      */
-    registerCommand(command) {
-    }
-    /**
-     * Un-registers a command instance from the module
-     * @param {BotNeckCommand} command The command instance to un-register from the module
-     */
-    unregisterCommand(command) {
+    static get moduleList() {
+        return ModuleManager.Instance.modules.map(loader => loader.module);
     }
 }
