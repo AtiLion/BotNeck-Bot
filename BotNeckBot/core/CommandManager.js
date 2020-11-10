@@ -1,7 +1,7 @@
 const { DiscordClientMessage, DiscordEmbed } = require('../api/DiscordAPI');
 const { BotNeckConfig } = require('./configParsers');
-const BotNeckCommand = require('../api/BotNeckCommand');
 const BotNeckLog = require('../api/BotNeckLog');
+const BotNeckCommand = require('../api/BotNeckCommand');
 
 let _instance = null;
 module.exports = class CommandManager {
@@ -25,6 +25,7 @@ module.exports = class CommandManager {
         // Get out the data from the config
         this.prefix = config.Prefix;
         this.errorOnCommandNotFound = config.ErrorOnCommandNotFound;
+        this.errorOnNotEnoughArguments = config.ErrorOnNotEnoughArguments;
     }
     destroy() {
         BotNeckLog.log('Cleaning up CommandManager ...');
@@ -50,6 +51,19 @@ module.exports = class CommandManager {
         for(let command of this.registeredCommands) {
             if(!rawCommand.startsWith(command.Command)) continue;
             let commandArgs = this.parseCommand(rawCommand);
+
+            if(command.MinimumArguments > BotNeckCommand.getNumberOfArguments(commandArgs)) {
+                BotNeckLog.log('Not enough arguments for message', message.Content);
+
+                if(!this.errorOnNotEnoughArguments) return;
+                message.Content = '';
+                message.Embed = new DiscordEmbed();
+                message.Embed.Title = 'BotNeck Error';
+                message.Embed.Description = 'Not enough arguments provided! Check the usage below!';
+                message.Embed.Color = 0xff6e00;
+                message.Embed.addField('Command Usage', command.Usage, false);
+                return;
+            }
 
             command.execute(message, commandArgs);
             return;

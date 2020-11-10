@@ -1,5 +1,5 @@
 const { BotNeckModule, BotNeckClient, BotNeckCommand } = require('../BotNeckAPI');
-const { Help } = require('./Commands');
+const { Help, Usage } = require('./Commands');
 
 module.exports = class BotNeckUtils extends BotNeckModule {
     constructor() {
@@ -17,6 +17,10 @@ module.exports = class BotNeckUtils extends BotNeckModule {
         let helpCommand = new Help();
         BotNeckCommand.registerCommand(helpCommand);
         this.loadedCommands.push(helpCommand);
+
+        let usageCommand = new Usage();
+        BotNeckCommand.registerCommand(usageCommand);
+        this.loadedCommands.push(usageCommand);
     }
     onUnload() {
         for(let command of this.loadedCommands)

@@ -17,6 +17,11 @@ module.exports = class BotNeckCommand {
      * @returns {String}
      */
     get Usage() { return ''; }
+    /**
+     * The minimum amount of arguments required for the command to run
+     * @returns {Number}
+     */
+    get MinimumArguments() { return 0; }
 
     /**
      * This function gets executed when the command is called

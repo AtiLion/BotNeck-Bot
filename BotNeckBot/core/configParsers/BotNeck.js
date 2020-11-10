@@ -28,4 +28,15 @@ module.exports = class BotNeckConfig {
      * @param {Boolean} errorOnCommandNotFound
      */
     set ErrorOnCommandNotFound(errorOnCommandNotFound) { this.config.errorOnCommandNotFound = errorOnCommandNotFound; }
+
+    /**
+     * Should an error be displayed if not enough arguments were provided to the command
+     * @returns {Boolean}
+     */
+    get ErrorOnNotEnoughArguments() { return this.config.errorOnNotEnoughArguments; }
+    /**
+     * Should an error be displayed if not enough arguments were provided to the command
+     * @returns {Boolean}
+     */
+    set ErrorOnNotEnoughArguments(errorOnNotEnoughArguments) { this.config.errorOnNotEnoughArguments = errorOnNotEnoughArguments; }
 }
