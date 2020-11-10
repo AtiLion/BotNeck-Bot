@@ -1,4 +1,5 @@
 const ModuleManager = require('../core/ModuleManager');
+const BotNeckLog = require('./BotNeckLog');
 
 module.exports = class BotNeckModule {
     /**
@@ -37,5 +38,35 @@ module.exports = class BotNeckModule {
      */
     static get moduleList() {
         return ModuleManager.Instance.modules.map(loader => loader.module);
+    }
+
+    /**
+     * Loads the specified module using it's name
+     * @param {String} moduleName The name of the module's file to load
+     */
+    static loadModule(moduleName) {
+        if(!moduleName || typeof moduleName !== 'string') return;
+
+        ModuleManager.Instance.loadModule(moduleName);
+    }
+    /**
+     * Unloads the specified module instance
+     * @param {BotNeckMoodule} module The module instance to unload
+     */
+    static unloadModule(module) {
+        if(!module || !(module instanceof BotNeckModule)) return;
+        let loader = ModuleManager.Instance.modules.find(mod => mod.module === module);
+        if(!loader) return;
+
+        ModuleManager.Instance.unloadModule(loader);
+    }
+    /**
+     * Reloads all modules
+     * @returns {Promise} Promise to indicate when modules have been reloaded
+     */
+    static reloadModules() {
+        BotNeckLog.log('Reloading modules ...');
+        ModuleManager.Instance.unloadModules();
+        return ModuleManager.Instance.loadModules();
     }
 }

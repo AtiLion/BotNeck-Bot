@@ -47,4 +47,32 @@ module.exports = class BotNeckCommand {
     static unregisterCommand(instance) {
         CommandManager.Instance.unregisterCommand(instance);
     }
+
+    /**
+     * Gets the number of arguments that were passed to the command
+     * @param {any} args The arguments passed to the command
+     * @returns {Number} The number of passed arguments
+     */
+    static getNumberOfArguments(args) {
+        if(typeof args !== 'object')
+			return 0;
+		let counter = 0;
+
+		for(let key in args)
+			if(!isNaN(key))
+				counter++;
+		return counter;
+    }
+    /**
+     * Combines all the arguments into a string
+     * @param {any} args The arguments passed to the command
+     * @returns {String} The combined arguments as string
+     */
+    static getArgumentsAsString(args) {
+        let input = '';
+
+		for(let i in args)
+			input += args[i] + ' ';
+		return input;
+    }
 }
