@@ -25,8 +25,10 @@ module.exports = class v3Loader extends GenericLoader {
         try {
             this.moduleInstance = new this.module();
             this.moduleInstance.onLoad();
+            return true;
         } catch (err) {
             BotNeckLog.error(err, 'Failed to load module', path.basename(this.file));
+            return false;
         }
     }
     /**
@@ -57,7 +59,7 @@ module.exports = class v3Loader extends GenericLoader {
      * @returns {Boolean} If the v2 loader can load the module's format
      */
     static verifyFormat(file, module) {
-        if(Object.keys(module).length < 1) return false;
+        if(Object.keys(module).length > 0) return false;
         if(!(module.prototype instanceof BotNeckModule)) return false;
 
         return true;

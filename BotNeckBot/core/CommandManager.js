@@ -82,7 +82,10 @@ module.exports = class CommandManager {
             let value = null;
 
             function pushArg(val) {
-                args[name] = BotNeckInternals.buildArgType(val);
+                if(!val || val === '') args[name] = false;
+                else if(!isNaN(val)) args[name] = Number(val);
+                else args[name] = val;
+                
                 name = null;
                 value = null;
             }
