@@ -5,7 +5,7 @@ const { DiscordNetwork, DiscordNetworkCleanup } = require('./DiscordNetwork');
 const ModuleManager = require('./ModuleManager');
 const CommandManager = require('./CommandManager');
 const BotNeckClient = require('../api/BotNeckClient');
-const { DiscordClientMessage } = require('../api/DiscordAPI');
+const { DiscordClientMessage, DiscordMessage } = require('../api/DiscordAPI');
 const { BotNeckConfig } = require('./configParsers');
 
 /**
@@ -37,6 +37,10 @@ module.exports = class BotNeckBot {
                 if(requestJson.content === null) return;
                 BotNeckClient.onMessageSend.invoke(new DiscordClientMessage(requestJson), isBotRequest);
             }
+            _discordNetwork.onResponseReceived = (responseJson, isBotRequest) => {
+                if(responseJson.id === null) return;
+                BotNeckClient.onMessageResponse.invoke(new DiscordMessage(responseJson), isBotRequest);
+            };
 
             _commandManager = new CommandManager(parsedConfig);
             BotNeckClient.onMessageSend.addEventCallback((message, isBotRequest) => {

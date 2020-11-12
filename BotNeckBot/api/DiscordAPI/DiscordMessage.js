@@ -67,6 +67,25 @@ class DiscordClientMessage {
 }
 
 class DiscordMessage {
+    /**
+     * Creates an easy to use message wrapper
+     * @param {any} messageObject The raw message object
+     */
+    constructor(messageObject = null) {
+        if(!messageObject) messageObject = {};
+        this.message = messageObject;
+    }
+
+    /**
+     * Id of the message
+     * @returns {String}
+     */
+    get Id() { return this.message.id; }
+    /**
+     * Id of the message
+     * @param {String} id
+     */
+    set Id(id) { this.message.id = id; }
 }
 
 module.exports = { DiscordClientMessage, DiscordMessage }

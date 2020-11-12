@@ -1,12 +1,15 @@
 const { DiscordUser } = require('../DiscordAPI');
 const BotNeckLog = require('../BotNeckLog');
+const BotNeckCommand = require('../BotNeckCommand');
+const BotNeckClient = require('../BotNeckClient');
+const BotNeckModule = require('../BotNeckModule');
 
 module.exports = class BotNeckAPI {
 	static getCurrentServerId() { return window.location.pathname.split('/')[2]; }
 	static getCurrentChannelId() { return window.location.pathname.split('/')[3]; }
-	static getLastUserMessageId() { return protectedObject['lastUserMessageId']; }
-	static getLastBotMessageId() { return protectedObject['lastBotMessageId']; }
-	static getModulesPath() { return path.join(window.ContentManager.pluginsFolder, 'BotNeckModules'); }
+	static getLastUserMessageId() { return BotNeckClient.getLastUserMessage().Id; }
+	static getLastBotMessageId() { return BotNeckClient.getLastBotMessage().Id; }
+	static getModulesPath() { return BotNeckModule.modulesPath; }
 	static getCurrentUser(apiKey, callback) {
 		callback(DiscordUser.current);
 	}
@@ -21,7 +24,10 @@ module.exports = class BotNeckAPI {
 		return true;
 	}
 	static nextMessagePost(func) {
-		protectedObject['messagePostEvent'].push(func);
+		BotNeckClient.onMessageSend.callbackOnce(() => {
+			try { func(); }
+			catch (err) { BotNeckLog.error(err, 'Failed to invoke message post function!'); }
+		});
 	}
 
 	static generateError(error) {
@@ -33,21 +39,10 @@ module.exports = class BotNeckAPI {
 		}
 	}
 	static getArgumentNumber(args) {
-		if(typeof args !== 'object')
-			return 0;
-		let counter = 0;
-
-		for(let key in args)
-			if(!isNaN(key))
-				counter++;
-		return counter;
+		return BotNeckCommand.getNumberOfArguments(args);
 	}
 	static getArgumentsAsString(args) {
-		let input = '';
-
-		for(let i in args)
-			input += args[i] + ' ';
-		return input;
+		return BotNeckCommand.getArgumentsAsString(args);
 	}
 	static getMentionUserId(mention) {
 		if(!mention.startsWith('<@!') || !mention.endsWith('>')) return null;

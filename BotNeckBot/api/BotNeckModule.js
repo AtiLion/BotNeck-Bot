@@ -40,6 +40,12 @@ module.exports = class BotNeckModule {
     }
 
     /**
+     * Gets the modules directory path
+     * @returns {String}
+     */
+    static get modulesPath() { return ModuleManager.Instance.modulesDirectory; }
+
+    /**
      * Loads the specified module using it's name
      * @param {String} moduleName The name of the module's file to load
      */

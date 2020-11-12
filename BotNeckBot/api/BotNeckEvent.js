@@ -26,6 +26,20 @@ module.exports = class BotNeckEvent {
     }
 
     /**
+     * Calls the specified function when the event is triggered and removes the function from callback
+     * @param {Function} func The callback function to call when event is triggered
+     */
+    callbackOnce(func) {
+        let handle = (...args) => {
+            let index = this.callbacks.indexOf(handle);
+            this.callbacks.splice(index, 1);
+
+            func(...args);
+        };
+        this.callbacks.push(handle);
+    }
+
+    /**
      * Calls all the callbacks on stack of the event
      * @param  {...any} params The parameters to pass to the callbacks when the event is invoked
      */
