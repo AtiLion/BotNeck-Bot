@@ -2,6 +2,7 @@ const BotNeckEvent = require('./BotNeckEvent');
 const { DiscordNetwork } = require('../core/DiscordNetwork');
 const BotNeckBot = require('../core/BotNeckBot');
 const { DiscordMessage } = require('./DiscordAPI');
+const BotNeckLog = require('./BotNeckLog');
 
 const _onMessageSend = new BotNeckEvent();
 const _onMessageResponse = new BotNeckEvent();

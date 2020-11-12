@@ -1,5 +1,6 @@
 const WebpackModules = require('./DiscordWebpack');
 const BotNeckClient = require('../BotNeckClient');
+const BotNeckLog = require('../BotNeckLog');
 
 const UserStore = WebpackModules.getByProps('getCurrentUser');
 module.exports = class DiscordUser {
@@ -24,7 +25,7 @@ module.exports = class DiscordUser {
             if(!user && !DiscordNetwork.Instance) return resolve(null);
 
             // At least try to get it via request if it isn't cached by the client
-            BotNeckClient.sendAuthorizedRequest('/users/' + id)
+            BotNeckClient.sendAuthorizedRequest('/users/' + id, 'GET')
             .then(userObject => {
                 if(!userObject.id) return resolve(null);
                 resolve(new DiscordUser(userObject));

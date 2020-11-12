@@ -7,15 +7,25 @@ const BotNeckModule = require('../BotNeckModule');
 module.exports = class BotNeckAPI {
 	static getCurrentServerId() { return window.location.pathname.split('/')[2]; }
 	static getCurrentChannelId() { return window.location.pathname.split('/')[3]; }
-	static getLastUserMessageId() { return BotNeckClient.getLastUserMessage().Id; }
-	static getLastBotMessageId() { return BotNeckClient.getLastBotMessage().Id; }
+	static getLastUserMessageId() {
+		let lastMessage = BotNeckClient.getLastUserMessage();
+		if(!lastMessage) return null;
+
+		return lastMessage.Id;
+	}
+	static getLastBotMessageId() {
+		let lastMessage = BotNeckClient.getLastBotMessage();
+		if(!lastMessage) return null;
+
+		return lastMessage.Id;
+	}
 	static getModulesPath() { return BotNeckModule.modulesPath; }
 	static getCurrentUser(apiKey, callback) {
-		callback(DiscordUser.current);
+		callback(DiscordUser.current.discordData);
 	}
 	static getTargetUser(apiKey, userId, callback) {
 		DiscordUser.getFromId(userId)
-		.then(user => callback(user.discordData))
+		.then(user => { callback(user.discordData) })
 		.catch(err => { BotNeckLog.error(err, 'Failed to get target user!'); callback(null); })
 	}
 
@@ -24,7 +34,7 @@ module.exports = class BotNeckAPI {
 		return true;
 	}
 	static nextMessagePost(func) {
-		BotNeckClient.onMessageSend.callbackOnce(() => {
+		BotNeckClient.onMessageResponse.callbackOnce(() => {
 			try { func(); }
 			catch (err) { BotNeckLog.error(err, 'Failed to invoke message post function!'); }
 		});

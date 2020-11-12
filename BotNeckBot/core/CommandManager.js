@@ -46,10 +46,11 @@ module.exports = class CommandManager {
         if(!message || !message.Content) return;
         if(!message.Content.startsWith(this.prefix)) return;
         let rawCommand = message.Content.substring(this.prefix.length); // Remove the prefix
+        let justCommand = rawCommand.split(' ')[0];
 
         // Find the correct command, parse and execute
         for(let command of this.registeredCommands) {
-            if(!rawCommand.startsWith(command.Command)) continue;
+            if(justCommand !== command.Command) continue;
             let commandArgs = this.parseCommand(rawCommand);
 
             if(command.MinimumArguments > BotNeckCommand.getNumberOfArguments(commandArgs)) {

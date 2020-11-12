@@ -44,7 +44,7 @@ module.exports = class BotNeckEvent {
      * @param  {...any} params The parameters to pass to the callbacks when the event is invoked
      */
     invoke(...params) {
-        for(let cb of this.callbacks) {
+        for(let cb of [...this.callbacks]) {
             try { cb(...params); }
             catch (err) { BotNeckLog.error(err, 'Failed to invoke callback', cb); }
         }

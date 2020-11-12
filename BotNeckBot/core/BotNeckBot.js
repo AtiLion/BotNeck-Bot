@@ -38,7 +38,7 @@ module.exports = class BotNeckBot {
                 BotNeckClient.onMessageSend.invoke(new DiscordClientMessage(requestJson), isBotRequest);
             }
             _discordNetwork.onResponseReceived = (responseJson, isBotRequest) => {
-                if(responseJson.id === null) return;
+                if(!responseJson.id || !responseJson.author) return;
                 BotNeckClient.onMessageResponse.invoke(new DiscordMessage(responseJson), isBotRequest);
             };
 

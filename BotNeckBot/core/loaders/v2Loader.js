@@ -36,6 +36,16 @@ module.exports = class v2Loader extends GenericLoader {
             let oldModule = eval(generatedCode);
             this.commandModule = new v2Command(oldModule.command, oldModule.description, oldModule.usage, oldModule.execute);
 
+            // Some use custom fields and functions, so we need to copy them over
+            for(let extraField in oldModule) {
+                if(extraField === 'command' || extraField === 'description' || extraField === 'usage') continue;
+                this.commandModule[extraField] = oldModule[extraField];
+            }
+            for(let extraFunc of Object.getOwnPropertyNames(oldModule.__proto__)) {
+                if(extraFunc === 'execute' || extraFunc === 'constructor') continue;
+                this.commandModule[extraFunc] = oldModule.__proto__[extraFunc];
+            }
+
             BotNeckCommand.registerCommand(this.commandModule);
             return true;
         } catch (err) {

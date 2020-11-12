@@ -24,11 +24,7 @@ function overrideHttpOpen() {
 
     XMLHttpRequest.prototype.open = function(method, url) {
         let reqResult = originalHttpOpen.apply(this, [].slice.call(arguments));
-
-        // Escalate authorization
-        if(this.escalateAuthorization && url.startsWith('https://discordapp.com/') && authorizationToken) {
-            originalHttpSetHeader.call(this, 'Authorization', authorizationToken);
-        }
+        this._url = url;
 
         // We need to handle Discord responses
         this.addEventListener('load', () => {
@@ -36,7 +32,7 @@ function overrideHttpOpen() {
             if(!parsedMessage) return;
 
             // Invoke post events
-            safeInvokeEvent('onResponseReceived', parsedMessage, this.botNeckMessage);
+            safeInvokeEvent('onResponseReceived', parsedMessage, this.botNeckMessage || false);
         });
 
         return reqResult;
@@ -70,11 +66,35 @@ function overrideHttpSend() {
     XMLHttpRequest.prototype.send = function(data) {
         const parsedData = safeParseJson(data);
         if(parsedData) {
-            safeInvokeEvent('onRequestSent', parsedData, this.botNeckMessage);
+            safeInvokeEvent('onRequestSent', parsedData, this.botNeckMessage || false);
             data = JSON.stringify(parsedData);
         }
 
+        // Escalate authorization
+        if(this.escalateAuthorization && this._url.startsWith('https://discordapp.com/') && authorizationToken)
+            originalHttpSetHeader.call(this, 'Authorization', authorizationToken);
+
         return originalHttpSend.call(this, data);
+    }
+}
+
+//------------------------------- AJAX support
+const originalAjax = $.ajax;
+function overrideAjax() {
+    BotNeckLog.log('Overriding AJAX ...');
+    $.ajax = function(reqObj) {
+        let origBeforeSend = reqObj.beforeSend;
+
+        reqObj.beforeSend = (xhr) => {
+            const setRequestHeader = xhr.setRequestHeader;
+
+            { origBeforeSend(xhr); }
+
+            if(xhr.escalateAuthorization && reqObj.url.startsWith('https://discordapp.com/'))
+                setRequestHeader('Authorization', authorizationToken);
+        };
+
+        return originalAjax.call(this, reqObj);
     }
 }
 
@@ -159,6 +179,7 @@ class DiscordNetwork {
         overrideHttpOpen();
         overrideHttpSend();
         overrideHttpSetRequestHeader();
+        overrideAjax();
     }
 
     /**
@@ -239,5 +260,8 @@ function DiscordNetworkCleanup() {
 
     BotNeckLog.log('Resetting XMLHttpRequest.send ...');
     XMLHttpRequest.prototype.send = originalHttpSend;
+
+    BotNeckLog.log('Resetting AJAX ...');
+    $.ajax = originalAjax;
 }
 module.exports = { DiscordNetwork, DiscordNetworkCleanup }
