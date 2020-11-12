@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-
 const BotNeckLog = require('../api/BotNeckLog');
 const { v2Loader, GenericLoader, v3Loader } = require('./loaders');
 
@@ -20,12 +19,12 @@ module.exports = class ModuleManager {
             BotNeckLog.error('ModuleManager instance already exists!');
             return;
         }
+        _instance = this;
+
         if(!fs.existsSync(this.modulesDirectory)) {
             BotNeckLog.error('The modules directory does not exist!');
             return;
         }
-
-        _instance = this;
     }
     /**
      * Destroys and cleans up the ModuleManager instance

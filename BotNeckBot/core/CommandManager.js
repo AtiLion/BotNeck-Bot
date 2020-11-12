@@ -57,7 +57,6 @@ module.exports = class CommandManager {
 
                 if(!this.errorOnNotEnoughArguments) return;
                 message.Content = '';
-                message.Embed = new DiscordEmbed();
                 message.Embed.Title = 'BotNeck Error';
                 message.Embed.Description = 'Not enough arguments provided! Check the usage below!';
                 message.Embed.Color = 0xff6e00;

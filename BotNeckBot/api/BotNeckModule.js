@@ -1,4 +1,3 @@
-const ModuleManager = require('../core/ModuleManager');
 const BotNeckLog = require('./BotNeckLog');
 
 module.exports = class BotNeckModule {
@@ -70,3 +69,4 @@ module.exports = class BotNeckModule {
         return ModuleManager.Instance.loadModules();
     }
 }
+const ModuleManager = require('../core/ModuleManager');

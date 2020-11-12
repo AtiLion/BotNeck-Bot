@@ -1,8 +1,7 @@
 const { 
     BotNeckCommand,
     DiscordAPI: {
-        DiscordClientMessage,
-        DiscordEmbed
+        DiscordClientMessage
     }
 } = require('../../BotNeckAPI');
 

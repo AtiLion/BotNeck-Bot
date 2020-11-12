@@ -1,5 +1,4 @@
 const { DiscordClientMessage } = require('./DiscordAPI');
-const CommandManager = require('../core/CommandManager');
 
 module.exports = class BotNeckCommand {
     /**
@@ -81,3 +80,4 @@ module.exports = class BotNeckCommand {
 		return input;
     }
 }
+const CommandManager = require('../core/CommandManager');

@@ -1,3 +1,4 @@
+const {} = require('../modules/BotNeckAPI'); // Cache BotNeckAPI
 const BotNeckLog = require('../api/BotNeckLog');
 const ConfigManager = require('./ConfigManager');
 const { DiscordNetwork, DiscordNetworkCleanup } = require('./DiscordNetwork');

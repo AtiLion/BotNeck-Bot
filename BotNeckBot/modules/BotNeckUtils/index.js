@@ -1,5 +1,5 @@
 const { BotNeckModule, BotNeckClient, BotNeckCommand } = require('../BotNeckAPI');
-const { Help, Usage } = require('./Commands');
+const Commands = require('./Commands');
 
 module.exports = class BotNeckUtils extends BotNeckModule {
     constructor() {
@@ -14,13 +14,11 @@ module.exports = class BotNeckUtils extends BotNeckModule {
     get Author() { return 'AtiLion'; }
 
     onLoad() {
-        let helpCommand = new Help();
-        BotNeckCommand.registerCommand(helpCommand);
-        this.loadedCommands.push(helpCommand);
-
-        let usageCommand = new Usage();
-        BotNeckCommand.registerCommand(usageCommand);
-        this.loadedCommands.push(usageCommand);
+        for(let commandKey in Commands) {
+            let command = new Commands[commandKey]();
+            BotNeckCommand.registerCommand(command);
+            this.loadedCommands.push(command);
+        }
     }
     onUnload() {
         for(let command of this.loadedCommands)

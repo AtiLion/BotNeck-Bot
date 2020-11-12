@@ -1,8 +1,7 @@
 const { 
     BotNeckCommand,
     DiscordAPI: {
-        DiscordClientMessage,
-        DiscordEmbed
+        DiscordClientMessage
     }
 } = require('../../BotNeckAPI');
 
@@ -18,8 +17,6 @@ module.exports = class HelpCommand extends BotNeckCommand {
      */
     execute(message, args) {
         message.Content = '';
-
-        message.Embed = new DiscordEmbed();
         message.Embed.Title = 'BotNeck Help';
         message.Embed.Color = 0x0061ff;
         
