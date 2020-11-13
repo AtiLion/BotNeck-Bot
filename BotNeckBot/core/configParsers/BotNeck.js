@@ -1,21 +1,28 @@
-module.exports = class BotNeckConfig {
-    /**
-     * Creates a BotNeck config wrapper for the specified JSON
-     * @param {any} configObject The raw config JSON to wrap around
-     */
-    constructor(configObject) {
-        this.config = configObject;
+const BotNeckConfig = require('../../api/BotNeckConfig');
+
+let _instance = null;
+module.exports = class BotNeckParser extends BotNeckConfig {
+    constructor() {
+        super('BotNeck');
+
+        if(_instance) {
+            BotNeckLog.error('Main config has already been loaded!');
+            return;
+        }
+        _instance = this;
     }
+
+    /**
+     * Returns the main config instance of BotNeck
+     * @returns {BotNeckParser} The instance of the BotNeck config
+     */
+    static get Instance() { return _instance; }
 
     /**
      * The prefix used to specify what is a command
      * @returns {String}
      */
     get Prefix() { return this.config.prefix; }
-    /**
-     * The prefix used to specify what is a command
-     * @param {String} prefix
-     */
     set Prefix(prefix) { this.config.prefix = prefix; }
 
     /**
@@ -23,10 +30,6 @@ module.exports = class BotNeckConfig {
      * @returns {Boolean}
      */
     get ErrorOnCommandNotFound() { return this.config.errorOnCommandNotFound; }
-    /**
-     * Should an error be displayed if a command is not found
-     * @param {Boolean} errorOnCommandNotFound
-     */
     set ErrorOnCommandNotFound(errorOnCommandNotFound) { this.config.errorOnCommandNotFound = errorOnCommandNotFound; }
 
     /**
@@ -34,9 +37,12 @@ module.exports = class BotNeckConfig {
      * @returns {Boolean}
      */
     get ErrorOnNotEnoughArguments() { return this.config.errorOnNotEnoughArguments; }
+    set ErrorOnNotEnoughArguments(errorOnNotEnoughArguments) { this.config.errorOnNotEnoughArguments = errorOnNotEnoughArguments; }
+
     /**
-     * Should an error be displayed if not enough arguments were provided to the command
+     * Is the current client the master (used for remote commands)
      * @returns {Boolean}
      */
-    set ErrorOnNotEnoughArguments(errorOnNotEnoughArguments) { this.config.errorOnNotEnoughArguments = errorOnNotEnoughArguments; }
+    get IsMaster() { return this.config.isMaster; }
+    set IsMaster(isMaster) { this.config.isMaster = isMaster; }
 }
