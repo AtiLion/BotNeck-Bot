@@ -1,5 +1,6 @@
 const { 
     BotNeckCommand,
+    BotNeckPresets,
     DiscordAPI: {
         DiscordClientMessage
     }
@@ -17,22 +18,13 @@ module.exports = class UsageCommand extends BotNeckCommand {
      * @param {any} args The arguments of the command
      */
     execute(message, args) {
-        message.Content = '';
-        message.Embed.Title = 'BotNeck Usage';
-        message.Embed.Color = 0x0061ff;
-
         let potentialCommands = BotNeckCommand.commandList.filter(command => command.Command.toLowerCase() === args[0].toLowerCase());
-        if(potentialCommands.length < 1) {
-            message.Embed.Description = 'Specified command not found!';
-            message.Embed.Color = 0xff6e00;
-            return;
-        }
+        if(potentialCommands.length < 1)
+            return BotNeckPresets.createError(message, 'Specified command not found!');
 
-        if(potentialCommands.length === 1) {
-            message.Embed.Description = potentialCommands[0].Usage;
-            return;
-        }
-        message.Embed.Description = 'List of usages and commands that match the search';
+        if(potentialCommands.length === 1)
+            return BotNeckPresets.createInfo(message, potentialCommands[0].Usage);
+        BotNeckPresets.createInfo(message, 'List of usages and commands that match the search');
         for(let command of potentialCommands)
             message.Embed.addField(command.Command, command.Usage, false);
     }

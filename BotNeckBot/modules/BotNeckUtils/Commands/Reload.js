@@ -1,6 +1,7 @@
 const { 
     BotNeckCommand,
     BotNeckModule,
+    BotNeckPresets,
     DiscordAPI: {
         DiscordClientMessage
     }
@@ -17,11 +18,7 @@ module.exports = class ReloadCommand extends BotNeckCommand {
      * @param {any} args The arguments of the command
      */
     execute(message, args) {
-        message.Content = '';
-        message.Embed.Title = 'BotNeck Bot';
-        message.Embed.Color = 0x0061ff;
-        message.Embed.Description = 'All commands reloaded!';
-
+        BotNeckPresets.createInfo(message, 'All commands reloaded!');
         BotNeckModule.reloadModules();
     }
 }

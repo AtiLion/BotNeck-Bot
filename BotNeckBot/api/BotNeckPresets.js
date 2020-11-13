@@ -23,7 +23,7 @@ module.exports = {
         message.Embed = {
             Title: 'BotNeck Info',
             Description: info,
-            Color: 0xff6e00,
+            Color: 0x0061ff,
             Author: {
                 Name: 'BotNeck Bot',
                 Url: 'https://github.com/AtiLion/BotNeck-Bot',
