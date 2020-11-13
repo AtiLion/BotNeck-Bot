@@ -83,7 +83,16 @@ class DiscordEmbed {
      * Footer information
      * @param {DiscordEmbedFooter} footer
      */
-    set Footer(footer) { this.embed.footer = footer.footer; }
+    set Footer(footer) {
+        if(!footer) delete this.embed.footer;
+        else if(footer instanceof DiscordEmbedFooter) this.embed.footer = footer.footer;
+        else {
+            let dObj = new DiscordEmbedFooter();
+
+            for(let key in footer) dObj[key] = footer[key];
+            this.embed.footer = dObj.footer;
+        }
+    }
 
     /**
      * Image information
@@ -94,7 +103,16 @@ class DiscordEmbed {
      * Image information
      * @param {DiscordEmbedImage} image
      */
-    set Image(image) { this.embed.image = image.image; }
+    set Image(image) {
+        if(!image) delete this.embed.image;
+        else if(image instanceof DiscordEmbedImage) this.embed.image = image.image;
+        else {
+            let dObj = new DiscordEmbedImage();
+
+            for(let key in image) dObj[key] = image[key];
+            this.embed.image = dObj.image;
+        }
+    }
 
     /**
      * Thumbnail information
@@ -105,7 +123,16 @@ class DiscordEmbed {
      * Thumbnail information
      * @param {DiscordEmbedThumbnail} thumbnail
      */
-    set Thumbnail(thumbnail) { this.embed.thumbnail = thumbnail.thumbnail; }
+    set Thumbnail(thumbnail) {
+        if(!thumbnail) delete this.embed.thumbnail;
+        else if(thumbnail instanceof DiscordEmbedThumbnail) this.embed.thumbnail = thumbnail.thumbnail;
+        else {
+            let dObj = new DiscordEmbedThumbnail();
+
+            for(let key in thumbnail) dObj[key] = thumbnail[key];
+            this.embed.thumbnail = dObj.thumbnail;
+        }
+    }
 
     /**
      * Video information
@@ -116,7 +143,16 @@ class DiscordEmbed {
      * Video information
      * @param {DiscordEmbedVideo} video
      */
-    set Video(video) { this.embed.video = video.video; }
+    set Video(video) {
+        if(!video) delete this.embed.video;
+        else if(video instanceof DiscordEmbedVideo) this.embed.video = video.video;
+        else {
+            let dObj = new DiscordEmbedVideo();
+
+            for(let key in video) dObj[key] = video[key];
+            this.embed.video = dObj.video;
+        }
+    }
 
     /**
      * Provider information
@@ -127,7 +163,16 @@ class DiscordEmbed {
      * Provider information
      * @param {DiscordEmbedProvider} provider
      */
-    set Provider(provider) { this.embed.provider = provider.provider; }
+    set Provider(provider) {
+        if(!provider) delete this.embed.provider;
+        else if(provider instanceof DiscordEmbedProvider) this.embed.provider = provider.provider;
+        else {
+            let dObj = new DiscordEmbedProvider();
+
+            for(let key in provider) dObj[key] = provider[key];
+            this.embed.provider = dObj.provider;
+        }
+    }
 
     /**
      * Author information
@@ -138,7 +183,16 @@ class DiscordEmbed {
      * Author information
      * @param {DiscordEmbedAuthor} author
      */
-    set Author(author) { this.embed.author = author.author; }
+    set Author(author) {
+        if(!author) delete this.embed.author;
+        else if(author instanceof DiscordEmbedAuthor) this.embed.author = author.author;
+        else {
+            let dObj = new DiscordEmbedAuthor();
+
+            for(let key in author) dObj[key] = author[key];
+            this.embed.author = dObj.author;
+        }
+    }
 
     /**
      * Fields information

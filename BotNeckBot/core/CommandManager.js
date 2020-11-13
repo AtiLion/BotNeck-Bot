@@ -2,6 +2,7 @@ const { DiscordClientMessage, DiscordEmbed } = require('../api/DiscordAPI');
 const { BotNeckConfig } = require('./configParsers');
 const BotNeckLog = require('../api/BotNeckLog');
 const BotNeckCommand = require('../api/BotNeckCommand');
+const BotNeckPresets = require('../api/BotNeckPresets');
 
 let _instance = null;
 module.exports = class CommandManager {
@@ -57,10 +58,7 @@ module.exports = class CommandManager {
                 BotNeckLog.log('Not enough arguments for message', message.Content);
 
                 if(!this.errorOnNotEnoughArguments) return;
-                message.Content = '';
-                message.Embed.Title = 'BotNeck Error';
-                message.Embed.Description = 'Not enough arguments provided! Check the usage below!';
-                message.Embed.Color = 0xff6e00;
+                BotNeckPresets.createError(message, 'Not enough arguments provided! Check the usage below!');
                 message.Embed.addField('Command Usage', command.Usage, false);
                 return;
             }
@@ -72,12 +70,7 @@ module.exports = class CommandManager {
         // Handle when not found
         BotNeckLog.log('Failed to find command for message', message.Content);
         if(!this.errorOnCommandNotFound) return;
-
-        message.Content = '';
-        message.Embed = new DiscordEmbed();
-        message.Embed.Title = 'BotNeck Error';
-        message.Embed.Description = 'Failed to find specified command!';
-        message.Embed.Color = 0xff6e00;
+        BotNeckPresets.createError(message, 'Failed to find specified command!');
     }
     /**
      * Parses the raw command message and returns the arguments

@@ -30,7 +30,16 @@ class DiscordClientMessage {
      * Embedded rich content
      * @param {DiscordEmbed} embed
      */
-    set Embed(embed) { this.message.embed = embed.embed; } // TODO: Embeds from objects
+    set Embed(embed) {
+        if(!embed) delete this.message.embed;
+        else if(embed instanceof DiscordEmbed) this.message.embed = embed.embed;
+        else {
+            let dObj = new DiscordEmbed();
+
+            for(let key in embed) dObj[key] = embed[key];
+            this.message.embed = dObj.embed;
+        }
+    }
     
     /**
      * A nonce that can be used for optimistic message sending
