@@ -106,7 +106,7 @@ module.exports = class ModuleManager {
      * Unloads all modules from the modules directory
      */
     unloadModules() {
-        for(let modLoader of this.modules)
+        for(let modLoader of [...this.modules])
             this.unloadModule(modLoader);
     }
 }
