@@ -1,5 +1,5 @@
 const { DiscordClientMessage, DiscordEmbed } = require('../api/DiscordAPI');
-const { BotNeckConfig } = require('./configParsers');
+const { BotNeckParser } = require('./configParsers');
 const BotNeckLog = require('../api/BotNeckLog');
 const BotNeckCommand = require('../api/BotNeckCommand');
 const BotNeckPresets = require('../api/BotNeckPresets');
@@ -8,7 +8,7 @@ let _instance = null;
 module.exports = class CommandManager {
     /**
      * Creates the CommandManager to easily work with commands
-     * @param {BotNeckConfig} config The parsed configuration object for BotNeck
+     * @param {BotNeckParser} config The parsed configuration object for BotNeck
      */
     constructor(config) {
         if(_instance) {

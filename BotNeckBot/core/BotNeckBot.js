@@ -6,7 +6,7 @@ const ModuleManager = require('./ModuleManager');
 const CommandManager = require('./CommandManager');
 const BotNeckClient = require('../api/BotNeckClient');
 const { DiscordClientMessage, DiscordMessage } = require('../api/DiscordAPI');
-const { BotNeckConfig } = require('./configParsers');
+const { BotNeckParser } = require('./configParsers');
 
 /**
  * @type {ConfigManager}
@@ -30,7 +30,7 @@ module.exports = class BotNeckBot {
         _configManager = new ConfigManager();
         _configManager.loadConfiguration('BotNeck')
         .then(config => {
-            const parsedConfig = new BotNeckConfig(config);
+            const parsedConfig = new BotNeckParser(config);
 
             _discordNetwork = new DiscordNetwork();
             _discordNetwork.onRequestSent = (requestJson, isBotRequest) => {
@@ -77,6 +77,6 @@ module.exports = class BotNeckBot {
 
     static get Name() { return 'BotNeck Bot'; }
     static get Description() { return 'Adds selfbot commands to the Discord client.'; }
-    static get Version() { return 'dev3.0.0 preview 2'; }
+    static get Version() { return '3.0.0 preview 2'; }
     static get Author() { return 'AtiLion'; }
 }

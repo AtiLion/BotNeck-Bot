@@ -32,13 +32,22 @@ module.exports = class ConfigManager {
     static get Instance() { return _instance; }
 
     /**
+     * Converts the configuration name into the path to the config file
+     * @param {String} configName The config name to convert
+     * @returns {String} The config file path
+     */
+    convertNameToPath(configName) {
+        return path.resolve(this.configDirectory, configName + '.json');
+    }
+
+    /**
      * Loads the specified configuration file using it's name
      * @param {String} configName The configuration file name
      * @returns {Promise<any>} The parsed configuration or null
      */
     loadConfiguration(configName) {
         return new Promise((resolve, reject) => {
-            const configPath = path.resolve(this.configDirectory, configName + '.json');
+            const configPath = this.convertNameToPath(configName);
 
             if(!fs.existsSync(configPath))
                 return reject('Configuration file does not exist');
@@ -64,7 +73,7 @@ module.exports = class ConfigManager {
      */
     saveConfiguration(configName, configObject) {
         return new Promise((resolve, reject) => {
-            const configPath = path.resolve(this.configDirectory, configName);
+            const configPath = this.convertNameToPath(configName);
 
             if(!configObject) return reject('Configuration object cannot be null');
             try {

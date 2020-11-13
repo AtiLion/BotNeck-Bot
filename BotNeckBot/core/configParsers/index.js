@@ -1,3 +1,3 @@
-const BotNeckConfig = require('./BotNeck');
+const BotNeckParser = require('./BotNeck');
 
-module.exports = { BotNeckConfig }
+module.exports = { BotNeckParser }
