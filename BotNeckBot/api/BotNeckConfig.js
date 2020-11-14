@@ -26,6 +26,7 @@ module.exports = class BotNeckConfig {
             ConfigManager.Instance.loadConfiguration(confInstance.configName)
             .then(conf => {
                 confInstance.config = conf;
+                resolve(confInstance);
             }).catch(reject);
         });
     }
@@ -36,6 +37,24 @@ module.exports = class BotNeckConfig {
      */
     save() {
         return ConfigManager.Instance.saveConfiguration(this.configName, this.config);
+    }
+    /**
+     * Reloads the configuration from the disk
+     * @returns {Promise} A callback for when the configuration is reloaded
+     */
+    reload() {
+        const instance = this;
+        const confPath = ConfigManager.Instance.convertNameToPath(instance.configName);
+
+        return new Promise((resolve, reject) => {
+            if(!fs.existsSync(confPath)) return resolve();
+
+            ConfigManager.Instance.loadConfiguration(instance.configName)
+            .then(conf => {
+                instance.config = conf;
+                resolve();
+            }).catch(reject);
+        });
     }
 }
 const ConfigManager = require('../core/ConfigManager');
