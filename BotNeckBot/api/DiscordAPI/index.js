@@ -1,6 +1,6 @@
 const DiscordUser = require('./DiscordUser');
 const DiscordWebpack = require('./DiscordWebpack');
-const { DiscordClientMessage, DiscordMessage } = require('./DiscordMessage');
+const { DiscordClientMessageBase, DiscordClientMessage, DiscordMessage } = require('./DiscordMessage');
 const { DiscordEmbed,
     DiscordEmbedAuthor,
     DiscordEmbedField,
@@ -14,6 +14,7 @@ const { DiscordEmbed,
 module.exports = {
     DiscordUser,
     DiscordWebpack,
+    DiscordClientMessageBase,
     DiscordClientMessage,
     DiscordMessage,
     DiscordEmbed,

@@ -20,8 +20,12 @@ function handleMessageResponse(message, isBot) {
     if(isBot) _lastBotMessage = message;
     else _lastUserMessage = message;
 }
+function handleMessageReceive(message) {
+    _lastUserMessage = message;
+}
 
 _onMessageResponse.addEventCallback(handleMessageResponse);
+_onMessageReceived.addEventCallback(handleMessageReceive);
 module.exports = {
     /**
      * Event triggered every time a message is sent
@@ -33,6 +37,11 @@ module.exports = {
      * @type {BotNeckEvent}
      */
     onMessageResponse: _onMessageResponse,
+    /**
+     * Event triggered every time a message is received from the current user
+     * @type {BotNeckEvent}
+     */
+    onMessageReceived: _onMessageReceived,
     /**
      * The version of the bot currently running
      * @type {String}

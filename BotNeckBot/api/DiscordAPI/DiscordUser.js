@@ -13,6 +13,12 @@ module.exports = class DiscordUser {
     }
 
     /**
+     * Gets the ID of the selected Discord user
+     * @returns {String} The ID of the selected Discord user
+     */
+    get Id() { return this.discordData.id; }
+
+    /**
      * Creates a DiscordUser object from a Discord user's snowflake ID
      * @param {Number} id The snowflake ID of the Discord user
      * @returns {Promise<DiscordUser>} The DiscordUser object or null if not found

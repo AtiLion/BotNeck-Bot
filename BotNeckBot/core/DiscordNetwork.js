@@ -1,13 +1,8 @@
-/*const pako = require('pako');
-const erlpack = DiscordNative.nativeModules.requireModule('discord_erlpack');*/
+const erlpack = DiscordNative.nativeModules.requireModule('discord_erlpack');
 const BotNeckLog = require('../api/BotNeckLog');
 
 const discordAPIUrl = 'https://discordapp.com/api/v8';
 const validRequestTypes = [ 'POST', 'GET', 'DELETE', 'PATCH' ];
-/*const pakoInflate = new pako.Inflate({
-    chunkSize: 65536,
-    to: 'string'
-});*/
 
 //------------------------------- Utilities
 function safeParseJson(jsonString) {
@@ -98,54 +93,15 @@ function overrideAjax() {
     }
 }
 
-// TODO: Somehow fix the websockets
-// Websocket stuff, fix later
-{
-// We need to hook WebSocket sending to find the Discord websocket
-/*const originalWSSend = WebSocket.prototype.send;
-WebSocket.prototype.send = function() {
-    if(this.url.startsWith('wss://gateway.discord.gg/')) {
-        BotNeckLog.log('Found and saved Discord WebSocket instance!');
+const originalUnpack = erlpack.unpack;
+function overrideErlpack() {
+    BotNeckLog.log('Overriding erlpack ...');
+    erlpack.unpack = function(packedData) {
+        let result = originalUnpack(packedData);
+        safeInvokeEvent('onWSReceived', result);
 
-        discordWebSocket = this;
-        originalWSOnMessage = this.onmessage;
-        this.onmessage = handleWSOnMessage;
-        WebSocket.prototype.send = originalWSSend;
+        return result;
     }
-    return originalWSSend.apply(this, [].slice.call(arguments));
-}*/
-
-/*let discordWebSocket = null;
-let originalWSOnMessage = null;
-function handleWSOnMessage(ev) {
-    let data = new Uint8Array(ev.data);
-
-    pakoInflate.push(data, validateZLib(data) && pako.Z_SYNC_FLUSH);
-    if(pakoInflate.err) return;
-
-    data = pakoInflate.result;
-    data = erlpack.unpack(data);
-    for(let instance of NetworkInstances) {
-        try {
-            if(instance.onEventReceived)
-                instance.onEventReceived(data);
-        }
-        catch (err) { BotNeckLog.error(err, 'Failed to call event received successfully!'); }
-    }
-
-    if(originalWSOnMessage)
-        return originalWSOnMessage(ev);
-}
-function validateZLib(data) {
-    const len = data.length;
-    if(len < 4) return false;
-
-    //const zlibFlush = [ -1, -1, 0, 0 ];
-    const zlibFlush = [ 0xff, 0xff, 0x00, 0x00 ];
-    for(let i = 0; i < zlibFlush.length; i++)
-        if(data[len - (i + 1)] !== zlibFlush[i]) return false;   
-    return true;
-}*/
 }
 
 ////////////////////////// DiscordNetwork
@@ -168,6 +124,7 @@ class DiscordNetwork {
         //this.onEventReceived = null;
         this.onRequestSent = null; // Args: Parsed JSON content, Was sent by bot
         this.onResponseReceived = null; // Args: Parsed JSON, Was sent by bot
+        this.onWSReceived = null; // Args: Parsed JSON
 
         if(_instance) {
             BotNeckLog.error('DiscordNetwork instance already exists!');
@@ -175,11 +132,12 @@ class DiscordNetwork {
         }
         _instance = this;
 
-        // Override all the http functions
+        // Override all the network functions
         overrideHttpOpen();
         overrideHttpSend();
         overrideHttpSetRequestHeader();
         overrideAjax();
+        overrideErlpack();
     }
 
     /**
@@ -202,7 +160,7 @@ class DiscordNetwork {
 
         return new Promise((resolve, reject) => {
             if(!endpoint.startsWith('/')) endpoint = '/' + endpoint;
-            if(jsonData) jsonData = safeParseJson(jsonData);
+            //if(jsonData) jsonData = safeParseJson(jsonData);
 
             let req = new XMLHttpRequest();
             req.botNeckMessage = true;
@@ -212,7 +170,7 @@ class DiscordNetwork {
 
             req.open(type, discordAPIUrl + endpoint);
             req.setRequestHeader('Content-Type', 'application/json');
-            req.send(jsonData);
+            req.send(JSON.stringify(jsonData));
         });
     }
     /**
@@ -230,7 +188,7 @@ class DiscordNetwork {
 
         return new Promise((resolve, reject) => {
             if(!endpoint.startsWith('/')) endpoint = '/' + endpoint;
-            if(jsonData) jsonData = safeParseJson(jsonData);
+            //if(jsonData) jsonData = safeParseJson(jsonData);
 
             let req = new XMLHttpRequest();
             req.botNeckMessage = true;
@@ -241,7 +199,7 @@ class DiscordNetwork {
             req.open(type, discordAPIUrl + endpoint);
             req.setRequestHeader('Content-Type', 'application/json');
             req.setRequestHeader('Authorization', authorizationToken);
-            req.send(jsonData);
+            req.send(JSON.stringify(jsonData));
         });
     }
 }
@@ -263,5 +221,8 @@ function DiscordNetworkCleanup() {
 
     BotNeckLog.log('Resetting AJAX ...');
     $.ajax = originalAjax;
+
+    BotNeckLog.log('Resetting ErlPack ...');
+    erlpack.unpack = originalUnpack;
 }
 module.exports = { DiscordNetwork, DiscordNetworkCleanup }

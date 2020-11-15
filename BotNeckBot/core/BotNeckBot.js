@@ -5,7 +5,7 @@ const { DiscordNetwork, DiscordNetworkCleanup } = require('./DiscordNetwork');
 const ModuleManager = require('./ModuleManager');
 const CommandManager = require('./CommandManager');
 const BotNeckClient = require('../api/BotNeckClient');
-const { DiscordClientMessage, DiscordMessage } = require('../api/DiscordAPI');
+const { DiscordClientMessageBase, DiscordClientMessage, DiscordMessage, DiscordUser } = require('../api/DiscordAPI');
 const { BotNeckParser } = require('./configParsers');
 const BotNeckConfig = require('../api/BotNeckConfig');
 
@@ -28,6 +28,8 @@ let _moduleManager;
 
 module.exports = class BotNeckBot {
     constructor() {
+        const currentUser = DiscordUser.current;
+
         _configManager = new ConfigManager();
         BotNeckConfig.create(BotNeckParser)
         .then(() => {
@@ -41,12 +43,29 @@ module.exports = class BotNeckBot {
             _discordNetwork.onResponseReceived = (responseJson, isBotRequest) => {
                 if(!responseJson.id || !responseJson.author) return;
                 BotNeckClient.onMessageResponse.invoke(new DiscordMessage(responseJson), isBotRequest);
-            };
+            }
+            _discordNetwork.onWSReceived = (wsJson) => {
+                if(!wsJson.d || wsJson.t !== 'MESSAGE_CREATE' || !wsJson.d.author) return; // Make sure to handle only message getting
+                if(currentUser.Id !== wsJson.d.author.id) return; // Make sure to only handle messages from our user
+                BotNeckClient.onMessageReceived.invoke(new DiscordMessage(wsJson.d));
+            }
 
             _commandManager = new CommandManager(parsedConfig);
             BotNeckClient.onMessageSend.addEventCallback((message, isBotRequest) => {
                 if(isBotRequest) return;
                 _commandManager.handleMessage(message);
+            });
+            BotNeckClient.onMessageReceived.addEventCallback((message) => {
+                if(!parsedConfig.IsMaster) return; // Make sure our current client is the master
+                let baseMessage = new DiscordClientMessageBase();
+
+                baseMessage.Content = message.Content;
+                baseMessage.Embed = message.Embed;
+                if(_commandManager.handleMessage(baseMessage)) {
+                    message.editMessage(baseMessage.message)
+                    .then(() => BotNeckLog.log('Invoked remote message', message))
+                    .catch(err => BotNeckLog.error(err, 'Failed to invoke remote message', message));
+                }
             });
 
             _moduleManager = new ModuleManager();

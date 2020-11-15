@@ -1,6 +1,6 @@
 const { DiscordEmbed } = require('./DiscordEmbed');
 
-class DiscordClientMessage {
+class DiscordClientMessageBase {
     /**
      * Creates an easy to use client message wrapper
      * @param {any} messageObject The raw client message object
@@ -39,6 +39,15 @@ class DiscordClientMessage {
             for(let key in embed) dObj[key] = embed[key];
             this.message.embed = dObj.embed;
         }
+    }
+}
+class DiscordClientMessage extends DiscordClientMessageBase {
+    /**
+     * Creates an easy to use client message wrapper
+     * @param {any} messageObject The raw client message object
+     */
+    constructor(messageObject = null) {
+        super(messageObject);
     }
     
     /**
@@ -90,11 +99,52 @@ class DiscordMessage {
      * @returns {String}
      */
     get Id() { return this.message.id; }
+
     /**
-     * Id of the message
-     * @param {String} id
+     * Id of the channel
+     * @returns {String}
      */
-    set Id(id) { this.message.id = id; }
+    get ChannelId() { return this.message.channel_id; }
+
+    /**
+     * The message contents (up to 2000 characters)
+     * @returns {String}
+     */
+    get Content() { return this.message.content; }
+
+    /**
+     * Embedded rich content
+     * @returns {DiscordEmbed}
+     */
+    get Embed() { return new DiscordEmbed(this.message.embed = this.message.embed || {}); }
+
+    /**
+     * True if this is a TTS message
+     * @returns {Boolean}
+     */
+    get TTS() { return this.message.tts; }
+
+    /**
+     * A nonce that can be used for optimistic message sending
+     * @returns {String|Number}
+     */
+    get Nonce() { return this.message.nonce; }
+
+    /**
+     * Edits the current message
+     * @param {DiscordClientMessageBase} newMessage The new contents of the message
+     */
+    editMessage(newMessage) {
+        return new Promise((resolve, reject) => {
+            BotNeckClient.sendAuthorizedRequest(`/channels/${this.ChannelId}/messages/${this.Id}`, 'PATCH', newMessage)
+            .then(newObj => {
+                this.message = newObj;
+                resolve();
+            })
+            .catch(reject);
+        });
+    }
 }
 
-module.exports = { DiscordClientMessage, DiscordMessage }
+module.exports = { DiscordClientMessageBase, DiscordClientMessage, DiscordMessage }
+const BotNeckClient = require('../BotNeckClient');

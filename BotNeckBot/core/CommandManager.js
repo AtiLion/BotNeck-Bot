@@ -1,4 +1,4 @@
-const { DiscordClientMessage, DiscordEmbed } = require('../api/DiscordAPI');
+const { DiscordClientMessageBase, DiscordEmbed } = require('../api/DiscordAPI');
 const { BotNeckParser } = require('./configParsers');
 const BotNeckLog = require('../api/BotNeckLog');
 const BotNeckCommand = require('../api/BotNeckCommand');
@@ -39,11 +39,11 @@ module.exports = class CommandManager {
 
     /**
      * Handles the client message object to find a command
-     * @param {DiscordClientMessage} message The message object that the client is trying to send
+     * @param {DiscordClientMessageBase} message The message object that the client is trying to send
      */
     handleMessage(message) {
-        if(!message || !message.Content) return;
-        if(!message.Content.startsWith(this.config.Prefix)) return;
+        if(!message || !message.Content) return false;
+        if(!message.Content.startsWith(this.config.Prefix)) return false;
         let rawCommand = message.Content.substring(this.config.Prefix.length); // Remove the prefix
         let justCommand = rawCommand.split(' ')[0];
 
@@ -55,20 +55,21 @@ module.exports = class CommandManager {
             if(command.MinimumArguments > BotNeckCommand.getNumberOfArguments(commandArgs)) {
                 BotNeckLog.log('Not enough arguments for message', message.Content);
 
-                if(!this.config.ErrorOnNotEnoughArguments) return;
+                if(!this.config.ErrorOnNotEnoughArguments) return false;
                 BotNeckPresets.createError(message, 'Not enough arguments provided! Check the usage below!');
                 message.Embed.addField('Command Usage', command.Usage, false);
-                return;
+                return true;
             }
 
             command.execute(message, commandArgs);
-            return;
+            return true;
         }
 
         // Handle when not found
         BotNeckLog.log('Failed to find command for message', message.Content);
-        if(!this.config.ErrorOnCommandNotFound) return;
+        if(!this.config.ErrorOnCommandNotFound) return false;
         BotNeckPresets.createError(message, 'Failed to find specified command!');
+        return true;
     }
     /**
      * Parses the raw command message and returns the arguments
