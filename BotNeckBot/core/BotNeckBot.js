@@ -45,9 +45,12 @@ module.exports = class BotNeckBot {
                 BotNeckClient.onMessageResponse.invoke(new DiscordMessage(responseJson), isBotRequest);
             }
             _discordNetwork.onWSReceived = (wsJson) => {
-                if(!wsJson.d || wsJson.t !== 'MESSAGE_CREATE' || !wsJson.d.author) return; // Make sure to handle only message getting
-                if(currentUser.Id !== wsJson.d.author.id) return; // Make sure to only handle messages from our user
-                BotNeckClient.onMessageReceived.invoke(new DiscordMessage(wsJson.d));
+                if(!wsJson.d) return; // Make sure it's valid
+
+                if(wsJson.t === 'MESSAGE_CREATE' && wsJson.d.author && currentUser.Id === wsJson.d.author.id) // Make sure it's a message from the current user
+                    BotNeckClient.onMessageReceived.invoke(new DiscordMessage(wsJson.d));
+                else
+                    BotNeckClient.onWebSocketReceive.invoke(wsJson);
             }
 
             _commandManager = new CommandManager(parsedConfig);

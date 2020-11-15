@@ -1,5 +1,6 @@
 const erlpack = DiscordNative.nativeModules.requireModule('discord_erlpack');
 const BotNeckLog = require('../api/BotNeckLog');
+const DiscordWebpack = require('../api/DiscordAPI/DiscordWebpack');
 
 const discordAPIUrl = 'https://discordapp.com/api/v8';
 const validRequestTypes = [ 'POST', 'GET', 'DELETE', 'PATCH' ];
@@ -184,7 +185,14 @@ class DiscordNetwork {
         if(_instance !== this) throw 'This instance of DiscordNetwork is invalid!';
         if(!validRequestTypes.includes(type)) throw 'Invalid request type!';
         if(!endpoint) throw 'Empty endpoint!';
-        if(!authorizationToken) throw 'No authorization token saved!';
+        //if(!authorizationToken) throw 'No authorization token saved!';
+        if(!authorizationToken) {
+            let authObject = DiscordWebpack.getByProps('FINGERPRINT_KEY');
+            if(!authObject) throw 'No authorization token saved!';
+
+            authorizationToken = authObject.getToken();
+            BotNeckLog.log('Found the token through webpack!');
+        }
 
         return new Promise((resolve, reject) => {
             if(!endpoint.startsWith('/')) endpoint = '/' + endpoint;

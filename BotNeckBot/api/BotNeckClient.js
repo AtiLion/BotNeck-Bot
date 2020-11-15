@@ -7,6 +7,7 @@ const BotNeckLog = require('./BotNeckLog');
 const _onMessageSend = new BotNeckEvent();
 const _onMessageResponse = new BotNeckEvent();
 const _onMessageReceived = new BotNeckEvent();
+const _onWebSocketReceive = new BotNeckEvent();
 
 let _lastUserMessage = null;
 let _lastBotMessage = null;
@@ -42,6 +43,11 @@ module.exports = {
      * @type {BotNeckEvent}
      */
     onMessageReceived: _onMessageReceived,
+    /**
+     * Event triggered every time a websocket packet is received
+     * @type {BotNeckEvent}
+     */
+    onWebSocketReceive: _onWebSocketReceive,
     /**
      * The version of the bot currently running
      * @type {String}
