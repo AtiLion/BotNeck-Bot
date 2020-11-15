@@ -24,9 +24,7 @@ module.exports = class CommandManager {
         this.registeredCommands = [];
 
         // Get out the data from the config
-        this.prefix = config.Prefix;
-        this.errorOnCommandNotFound = config.ErrorOnCommandNotFound;
-        this.errorOnNotEnoughArguments = config.ErrorOnNotEnoughArguments;
+        this.config = config;
     }
     destroy() {
         BotNeckLog.log('Cleaning up CommandManager ...');
@@ -45,8 +43,8 @@ module.exports = class CommandManager {
      */
     handleMessage(message) {
         if(!message || !message.Content) return;
-        if(!message.Content.startsWith(this.prefix)) return;
-        let rawCommand = message.Content.substring(this.prefix.length); // Remove the prefix
+        if(!message.Content.startsWith(this.config.Prefix)) return;
+        let rawCommand = message.Content.substring(this.config.Prefix.length); // Remove the prefix
         let justCommand = rawCommand.split(' ')[0];
 
         // Find the correct command, parse and execute
@@ -57,7 +55,7 @@ module.exports = class CommandManager {
             if(command.MinimumArguments > BotNeckCommand.getNumberOfArguments(commandArgs)) {
                 BotNeckLog.log('Not enough arguments for message', message.Content);
 
-                if(!this.errorOnNotEnoughArguments) return;
+                if(!this.config.ErrorOnNotEnoughArguments) return;
                 BotNeckPresets.createError(message, 'Not enough arguments provided! Check the usage below!');
                 message.Embed.addField('Command Usage', command.Usage, false);
                 return;
@@ -69,7 +67,7 @@ module.exports = class CommandManager {
 
         // Handle when not found
         BotNeckLog.log('Failed to find command for message', message.Content);
-        if(!this.errorOnCommandNotFound) return;
+        if(!this.config.ErrorOnCommandNotFound) return;
         BotNeckPresets.createError(message, 'Failed to find specified command!');
     }
     /**

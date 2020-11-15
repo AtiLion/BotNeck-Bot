@@ -7,6 +7,7 @@ const CommandManager = require('./CommandManager');
 const BotNeckClient = require('../api/BotNeckClient');
 const { DiscordClientMessage, DiscordMessage } = require('../api/DiscordAPI');
 const { BotNeckParser } = require('./configParsers');
+const BotNeckConfig = require('../api/BotNeckConfig');
 
 /**
  * @type {ConfigManager}
@@ -28,9 +29,9 @@ let _moduleManager;
 module.exports = class BotNeckBot {
     constructor() {
         _configManager = new ConfigManager();
-        _configManager.loadConfiguration('BotNeck')
-        .then(config => {
-            const parsedConfig = new BotNeckParser(config);
+        BotNeckConfig.create(BotNeckParser)
+        .then(() => {
+            const parsedConfig = BotNeckParser.Instance; // Just for the type declaration
 
             _discordNetwork = new DiscordNetwork();
             _discordNetwork.onRequestSent = (requestJson, isBotRequest) => {

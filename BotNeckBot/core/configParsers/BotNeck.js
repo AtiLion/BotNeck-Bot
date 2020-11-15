@@ -1,4 +1,5 @@
 const BotNeckConfig = require('../../api/BotNeckConfig');
+const BotNeckLog = require('../../api/BotNeckLog');
 
 let _instance = null;
 module.exports = class BotNeckParser extends BotNeckConfig {
