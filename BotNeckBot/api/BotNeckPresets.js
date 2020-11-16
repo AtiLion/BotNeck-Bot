@@ -30,6 +30,7 @@ module.exports = {
     createBase: function(message, embed) {
         message.Content = '';
         message.Embed = {
+            Description: '',
             Color: 0x0061ff,
             Author: {
                 Name: 'BotNeck Bot',
