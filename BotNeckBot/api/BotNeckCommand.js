@@ -21,6 +21,11 @@ module.exports = class BotNeckCommand {
      * @returns {Number}
      */
     get MinimumArguments() { return 0; }
+    /**
+     * The aliases for the command
+     * @returns {[String]}
+     */
+    get Aliases() { return []; }
 
     /**
      * This function gets executed when the command is called

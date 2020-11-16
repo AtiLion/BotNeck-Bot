@@ -49,7 +49,7 @@ module.exports = class CommandManager {
 
         // Find the correct command, parse and execute
         for(let command of this.registeredCommands) {
-            if(justCommand !== command.Command) continue;
+            if(justCommand !== command.Command && !command.Aliases.includes(justCommand)) continue;
             let commandArgs = this.parseCommand(rawCommand);
 
             if(command.MinimumArguments > BotNeckCommand.getNumberOfArguments(commandArgs)) {
