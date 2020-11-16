@@ -77,71 +77,59 @@ module.exports = class CommandManager {
      * @returns {any} The parsed arguments in the raw command message
      */
     parseCommand(rawCommand) {
-        let broken = rawCommand.split(' ');
-        let builtArgs = broken.slice(1);
-        let args = {}
+        let rawArgs = rawCommand.split(' ').slice(1).join(' '); // Make sure to remove the command
+        let args = {};
 
-        // Build args
-        {
-            let inValue = false;
-            let name = null;
-            let value = null;
+        let _escaped = false;
+        let _inString = false;
+        let currentText = '';
+        let activeKeys = [];
+        let index = 0;
 
-            function pushArg(val) {
-                if(!val || val === '') args[name] = false;
-                else if(!isNaN(val)) args[name] = Number(val);
-                else args[name] = val;
-                
-                name = null;
-                value = null;
+        function pushArg() {
+            if(activeKeys.length) {
+                for(let key of activeKeys)
+                    args[key] = currentText;
+
+                activeKeys = [];
+                currentText = '';
+                return;
             }
 
-            for(let arg of builtArgs) {
-                if(!inValue && arg.includes('=')) { // key=value argument
-                    let brokenArg = arg.split('=');
-                    let builtValue = '';
-
-                    name = brokenArg[0];
-                    builtValue = arg.substring(name.length + 1);
-                    if(builtValue.startsWith('"')) { // It's a string
-                        if(builtValue.endsWith('"')) { // Single argument string
-                            pushArg(builtValue.substring(1, builtValue.length - 1));
-                            continue;
-                        }
-
-                        value = builtValue.substring(1);
-                        inValue = true;
-                        continue;
-                    }
-                    pushArg(builtValue);
-                }
-                else if(!inValue) { // lone argument
-                    name = Object.keys(args).length;
-                    if(arg.startsWith('"')) {
-                        if(arg.endsWith('"')) {
-                            pushArg(arg.substring(1, arg.length - 1));
-                            continue;
-                        }
-
-                        value = arg.substring(1);
-                        inValue = true;
-                        continue;
-                    }
-                    pushArg(arg);
-                }
-                else { // In the value
-                    if(arg.endsWith('"')) {
-                        value += ' ' + arg.substring(0, arg.length - 1);
-                        inValue = false;
-                        pushArg(value);
-                        continue;
-                    }
-
-                    value += ' ' + arg;
-                }
-            }
+            args[index++] = currentText;
+            currentText = '';
         }
-        return args
+
+        for(let char of rawArgs) {
+            if(!_escaped) {
+                if(char === '\\') {
+                    _escaped = true;
+                    continue;
+                }
+                else if(char === '"' || char === '\'') {
+                    _inString = !_inString;
+                    continue;
+                }
+
+                if(!_inString) {
+                    if(char === '=') {
+                        activeKeys.push(currentText);
+                        currentText = '';
+                        continue;
+                    }
+                    else if(char === ' ') {
+                        pushArg();
+                        continue;
+                    }
+                }
+            }
+
+            _escaped = false;
+            currentText += char;
+        }
+        
+        pushArg();
+        return args;
     }
 
     /**
