@@ -96,8 +96,10 @@ module.exports = class CommandManager {
                 return;
             }
 
-            args[index++] = currentText;
-            currentText = '';
+            if(currentText.length) {
+                args[index++] = currentText;
+                currentText = '';
+            }
         }
 
         for(let char of rawArgs) {
