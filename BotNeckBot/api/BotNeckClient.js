@@ -3,20 +3,17 @@ const { DiscordNetwork } = require('../core/DiscordNetwork');
 const BotNeckBot = require('../core/BotNeckBot');
 const { DiscordMessage } = require('./DiscordAPI');
 const BotNeckLog = require('./BotNeckLog');
+const BotNeckEvent = require('./BotNeckEvent');
 
 const _onMessageSend = new BotNeckEvent();
 const _onMessageResponse = new BotNeckEvent();
 const _onMessageReceived = new BotNeckEvent();
 const _onWebSocketReceive = new BotNeckEvent();
+const _onCurrentMessageSent = new BotNeckEvent();
 
 let _lastUserMessage = null;
 let _lastBotMessage = null;
 
-/**
- * Handles Discord message responses to send requests
- * @param {DiscordMessage} message
- * @param {Boolean} isBot 
- */
 function handleMessageResponse(message, isBot) {
     if(isBot) _lastBotMessage = message;
     else _lastUserMessage = message;
@@ -48,6 +45,11 @@ module.exports = {
      * @type {BotNeckEvent}
      */
     onWebSocketReceive: _onWebSocketReceive,
+    /**
+     * Event triggered when the current message is successfully sent
+     * @type {BotNeckEvent}
+     */
+    onCurrentMessageSent: _onCurrentMessageSent,
     /**
      * The version of the bot currently running
      * @type {String}
