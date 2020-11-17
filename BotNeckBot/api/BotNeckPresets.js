@@ -1,9 +1,9 @@
-const { DiscordClientMessage, DiscordEmbed } = require('./DiscordAPI');
+const { DiscordEmbed, DiscordClientMessageBase } = require('./DiscordAPI');
 
 module.exports = {
     /**
      * Changes a client message into an error embed
-     * @param {DiscordClientMessage} message The client message to turn into an error embed
+     * @param {DiscordClientMessageBase} message The client message to turn into an error embed
      */
     createError: function(message, error) {
         this.createBase(message, {
@@ -14,7 +14,7 @@ module.exports = {
     },
     /**
      * Changes a client message into an info embed
-     * @param {DiscordClientMessage} message The client message to turn into an info embed
+     * @param {DiscordClientMessageBase} message The client message to turn into an info embed
      */
     createInfo: function(message, info) {
         this.createBase(message, {
@@ -24,7 +24,7 @@ module.exports = {
     },
     /**
      * Changes a client message into the base embed
-     * @param {DiscordClientMessage} message The client message to turn into the base embed
+     * @param {DiscordClientMessageBase} message The client message to turn into the base embed
      * @param {DiscordEmbed} embed What information to add to the embed
      */
     createBase: function(message, embed) {
