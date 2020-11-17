@@ -3,13 +3,11 @@ const { DiscordNetwork } = require('../core/DiscordNetwork');
 const BotNeckBot = require('../core/BotNeckBot');
 const { DiscordMessage } = require('./DiscordAPI');
 const BotNeckLog = require('./BotNeckLog');
-const BotNeckEvent = require('./BotNeckEvent');
 
 const _onMessageSend = new BotNeckEvent();
 const _onMessageResponse = new BotNeckEvent();
 const _onMessageReceived = new BotNeckEvent();
 const _onWebSocketReceive = new BotNeckEvent();
-const _onCurrentMessageSent = new BotNeckEvent();
 
 let _lastUserMessage = null;
 let _lastBotMessage = null;
@@ -46,15 +44,41 @@ module.exports = {
      */
     onWebSocketReceive: _onWebSocketReceive,
     /**
-     * Event triggered when the current message is successfully sent
-     * @type {BotNeckEvent}
-     */
-    onCurrentMessageSent: _onCurrentMessageSent,
-    /**
      * The version of the bot currently running
      * @type {String}
      */
     botVersion: BotNeckBot.Version,
+
+    /**
+     * Function callback for when the message is sent
+     * @callback afterMessageFunc
+     * @param {DiscordMessage} message
+     * @param {any} promiseOutput
+     */
+    /**
+     * Waits for the message to be sent and for a give promise to be complete before invoking the given functions
+     * @param {Promise} forwardPromise A promise that has to be completed before the functions run (null if none)
+     * @param  {...afterMessageFunc} funcs The functions to execute once the promise is done and the message is sent
+     */
+    runAfterMessage: function(forwardPromise, ...funcs) {
+        _onMessageResponse.callbackOnce((message, isBot) => {
+            if(isBot) return;
+            if(!forwardPromise) {
+                for(let func of funcs) {
+                    try { func(message, output); }
+                    catch (err) { BotNeckLog.error(err, 'Failed to invoke given functions'); }
+                }
+                return;
+            }
+
+            forwardPromise.then(output => {
+                for(let func of funcs) {
+                    try { func(message, output); }
+                    catch (err) { BotNeckLog.error(err, 'Failed to invoke given functions'); }
+                }
+            });
+        });
+    },
 
     /**
      * Sends an unauthorized request to Discord's API with the specified data
