@@ -19,6 +19,24 @@ module.exports = class DiscordUser {
     get Id() { return this.discordData.id; }
 
     /**
+     * Gets the avatar url id of the selected Discord user
+     * @returns {String} The avatar url id of the selected Discord user
+     */
+    get Avatar() { return this.discordData.avatar; }
+
+    /**
+     * Gets the username of the selected Discord user
+     * @returns {String} The username of the selected Discord user
+     */
+    get Username() { return this.discordData.username; }
+
+    /**
+     * Gets the discriminator of the selected Discord user
+     * @returns {String} The discriminator of the selected Discord user
+     */
+    get Discriminator() { return this.discordData.discriminator; }
+
+    /**
      * Creates a DiscordUser object from a Discord user's snowflake ID
      * @param {Number} id The snowflake ID of the Discord user
      * @returns {Promise<DiscordUser>} The DiscordUser object or null if not found
@@ -38,6 +56,22 @@ module.exports = class DiscordUser {
             })
             .catch(reject);
         });
+    }
+
+    /**
+     * Gets the user id out of a mention tag
+     * @param {String} mention The mention string to convert to the user id
+     * @returns {Promise<DiscordUser>} The DiscordUser object or null if not found
+     */
+    static getFromMention(mention) {
+        if(!mention.startsWith('<@!') || !mention.endsWith('>')) return null;
+        let userId = mention.substring(3, mention.length - 1);
+
+        return new Promise(((resolve, reject) => {
+            if(!userId || isNaN(userId)) return reject('Invalid mention string!');
+
+            this.getFromId(userId).then(resolve).catch(reject);
+        }).bind(this));
     }
 
     /**
