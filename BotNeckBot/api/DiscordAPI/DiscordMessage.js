@@ -135,8 +135,15 @@ class DiscordMessage {
      * @param {DiscordClientMessageBase} newMessage The new contents of the message
      */
     editMessage(newMessage) {
+        if(!(newMessage instanceof DiscordClientMessageBase)) {
+            let dObj = new DiscordClientMessageBase();
+
+            for(let key in newMessage) dObj[key] = newMessage[key];
+            newMessage = dObj;
+        }
+
         return new Promise((resolve, reject) => {
-            BotNeckClient.sendAuthorizedRequest(`/channels/${this.ChannelId}/messages/${this.Id}`, 'PATCH', newMessage)
+            BotNeckClient.sendAuthorizedRequest(`/channels/${this.ChannelId}/messages/${this.Id}`, 'PATCH', newMessage.message)
             .then(newObj => {
                 this.message = newObj;
                 resolve();
@@ -148,3 +155,4 @@ class DiscordMessage {
 
 module.exports = { DiscordClientMessageBase, DiscordClientMessage, DiscordMessage }
 const BotNeckClient = require('../BotNeckClient');
+const BotNeckLog = require('../BotNeckLog');
