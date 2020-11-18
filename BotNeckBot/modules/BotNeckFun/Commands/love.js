@@ -3,6 +3,7 @@ const {
     BotNeckPresets,
     BotNeckClient,
     DiscordAPI: {
+        DiscordClientMessage,
         DiscordUser,
         DiscordClientMessageBase
     }

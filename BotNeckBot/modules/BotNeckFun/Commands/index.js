@@ -8,6 +8,8 @@ const Flip = require('./flip');
 const Lenny = require('./lenny');
 const Lmgtfy = require('./lmgtfy');
 const Love = require('./love');
+const Regional = require('./regional');
+const Roll = require('./roll');
 
 module.exports = {
     EightBall,
@@ -19,5 +21,7 @@ module.exports = {
     Flip,
     Lenny,
     Lmgtfy,
-    Love
+    Love,
+    Regional,
+    Roll
 }
