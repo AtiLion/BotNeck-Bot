@@ -12,6 +12,7 @@ const Regional = require('./regional');
 const Roll = require('./roll');
 const Neko = require('./neko');
 const Wallpaper = require('./wallpaper');
+const AniList = require('./anilist');
 
 module.exports = {
     EightBall,
@@ -27,5 +28,6 @@ module.exports = {
     Regional,
     Roll,
     Neko,
-    Wallpaper
+    Wallpaper,
+    AniList
 }
