@@ -13,6 +13,7 @@ const Roll = require('./roll');
 const Neko = require('./neko');
 const Wallpaper = require('./wallpaper');
 const AniList = require('./anilist');
+const MAL = require('./mal');
 
 module.exports = {
     EightBall,
@@ -29,5 +30,6 @@ module.exports = {
     Roll,
     Neko,
     Wallpaper,
-    AniList
+    AniList,
+    MAL
 }
