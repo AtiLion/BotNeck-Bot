@@ -211,12 +211,20 @@ class DiscordEmbed {
      * @param {[DiscordEmbedField]} fields
      */
     set Fields(fields) {
+        if(!fields) return this.embed.fields = [];
         let outFields = [];
 
-        if(!fields) return this.embed.fields = [];
-        for(let field of fields)
-            outFields.push(field.field);
-        this.embed.fields = outFields;
+        for(let field of fields) {
+            if(!field) continue;
+
+            if(field instanceof DiscordEmbedField) outFields.push(field.field);
+            else {
+                let dObj = new DiscordEmbedField();
+
+                for(let key in field) dObj[key] = field[key];
+                outFields.push(dObj.field);
+            }
+        }
     }
     /**
      * Adds field to embed
