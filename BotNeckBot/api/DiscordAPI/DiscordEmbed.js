@@ -225,6 +225,7 @@ class DiscordEmbed {
                 outFields.push(dObj.field);
             }
         }
+        this.embed.fields = outFields;
     }
     /**
      * Adds field to embed
