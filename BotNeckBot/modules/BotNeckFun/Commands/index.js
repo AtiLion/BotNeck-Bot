@@ -10,6 +10,8 @@ const Lmgtfy = require('./lmgtfy');
 const Love = require('./love');
 const Regional = require('./regional');
 const Roll = require('./roll');
+const Neko = require('./neko');
+const Wallpaper = require('./wallpaper');
 
 module.exports = {
     EightBall,
@@ -23,5 +25,7 @@ module.exports = {
     Lmgtfy,
     Love,
     Regional,
-    Roll
+    Roll,
+    Neko,
+    Wallpaper
 }
