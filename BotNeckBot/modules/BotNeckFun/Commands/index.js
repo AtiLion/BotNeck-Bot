@@ -14,6 +14,7 @@ const Neko = require('./neko');
 const Wallpaper = require('./wallpaper');
 const AniList = require('./anilist');
 const MAL = require('./mal');
+const Embed = require('./embed');
 
 module.exports = {
     EightBall,
@@ -31,5 +32,6 @@ module.exports = {
     Neko,
     Wallpaper,
     AniList,
-    MAL
+    MAL,
+    Embed
 }
