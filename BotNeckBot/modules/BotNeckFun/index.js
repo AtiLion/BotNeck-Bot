@@ -1,11 +1,16 @@
-const { BotNeckModule, BotNeckClient, BotNeckCommand, BotNeckLog } = require('../BotNeckAPI');
+const { BotNeckModule, BotNeckClient, BotNeckCommand, BotNeckConfig, BotNeckLog } = require('../BotNeckAPI');
 const Commands = require('./Commands');
+const Config = require('./config');
 
 module.exports = class BotNeckFun extends BotNeckModule {
     constructor() {
         super();
 
         this.loadedCommands = [];
+
+        BotNeckConfig.create(Config)
+        .then(() => BotNeckLog.log('Successfully loaded BotNeckFun config!'))
+        .catch(err => BotNeckLog.error(err, 'Failed to load BotNeckFun config!'));
     }
 
     get Name() { return 'BotNeck Fun'; }
