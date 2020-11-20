@@ -44,7 +44,9 @@ module.exports = class EmbedCommand extends BotNeckCommand {
         let embed = this.DefaultEmbed;
         if(args['load'] && Config.Instance.SavedEmbeds[args['load']])
             embed = JSON.parse(JSON.stringify(Config.Instance.SavedEmbeds[args['load']]));
-        
+		
+		let temp = BotNeckCommand.getArgumentsAsString(args);
+		if(temp && temp.length) embed.description = temp;
 		for(let key in args) {
             if(!isNaN(key)) continue;
             if(key === 'load' || key === 'save') continue;
