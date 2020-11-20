@@ -80,8 +80,9 @@ module.exports = class BotNeckCommand {
     static getArgumentsAsString(args) {
         let input = '';
 
-		for(let i in args)
-			input += args[i] + ' ';
+        for(let i in args)
+            if(!isNaN(i))
+			    input += args[i] + ' ';
 		return input;
     }
 }
