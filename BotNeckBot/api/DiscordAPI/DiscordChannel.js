@@ -42,7 +42,7 @@ module.exports = class DiscordChannel {
 
     /**
      * Returns the DiscordChannel object of the current Discord guild
-     * @returns {DiscordChannel} The current guild's DiscordChannel object or null if not found
+     * @returns {Promise<DiscordChannel>} The current guild's DiscordChannel object or null if not found
      */
     static get current() {
         return this.getFromId(SelectedChannelStore.getChannelId());

@@ -42,7 +42,7 @@ module.exports = class DiscordGuild {
 
     /**
      * Returns the DiscordGuild object of the current Discord guild
-     * @returns {DiscordGuild} The current guild's DiscordGuild object or null if not found
+     * @returns {Promise<DiscordGuild>} The current guild's DiscordGuild object or null if not found
      */
     static get current() {
         return this.getFromId(SelectedGuildStore.getGuildId());
