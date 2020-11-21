@@ -10,7 +10,7 @@ const Config = require('../config');
 module.exports = class EmbedCommand extends BotNeckCommand {
     get Command() { return 'embed'; }
     get Description() { return 'Creates and sends an embed based on parameters'; }
-    get Usage() { return 'embed description=\'desc\' color=0x0061ff footer.text=\'Footer\' field.name1=\'value1\''; }
+    get Usage() { return 'embed color=0x0061ff footer.text=\'Footer\' field.name1=\'value1\' [description]'; }
 
     get DefaultEmbed() {
         return {
