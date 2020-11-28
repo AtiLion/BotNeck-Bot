@@ -1,0 +1,6 @@
+{
+    "prefix": "->",
+    "errorOnCommandNotFound": true,
+    "errorOnNotEnoughArguments": true,
+    "isMaster": false
+}

@@ -2,71 +2,78 @@ BotNeck Bot
 ==========
 BotNeck Bot is a self-bot that is implemented into discord as a **BandagedDiscord** plugin. It is designed to be dynamic and easy to use. That means it is extremely easy to add your own commands to the bot without having to modify the code!
 
-To use the bot you need to use the prefix "->" if you want to change the prefix the configuration is located in your BetterDiscord directory under the name "BotNeck.config.json" or change it using the config command
+To use the bot you need to use the prefix "->" if you want to change the prefix you can change the configuration located it "BotNeckBot/config/BotNeck.json" file. You can also change it by using the prefix command.
 
 [![Discord](https://img.shields.io/badge/Discord-My%20Personal%20Projects%20Server-blue?style=for-the-badge&logo=discord)](https://discord.gg/qWVgdxu)
 
 ----------
 
-Features
+About
 --------
+BotNeck bot offers a unqiue approach to a self-bot as it has multiple modes it can handle.
 
-BotNeck Bot offers lots of already built in commands such as:
+The first mode is the "hook" mode, this mode allows you to use and execute commands before they are ever sent to Discord servers, this in turn prevents API spam or "automated message detection" and so it makes the self-bot less detectable by Discord.
 
- - Magic 8ball
- - Calculator
- - Random choice chooser
- - Text flipper
- - Help
- - Lenny face
- - Lmgtfy link generator
- - Love calculator
- - Text to regional text
- - Easy module/command reloader
- - Roll a dice
- - Backup/Save the chat
- - Browse MyAnimeList in embeds
- - Browse AniList in embeds
- - Embed module to create custom embeds
- - F in chat
- - Change configuration with a command
- - Flip a coin
- - Send a random neko picture using nekos.life [NSFW]
- - Send a random wallpaper using nekos.life [NSFW]
+The second mode is the standard mode, this acts equal to how normal self-bots work. When a command is sent the message is gotten by the client, the command is executed and the message is replaced by the command's output. This mode is only used when remote commands are enabled and the command is sent from another client that does not use BotNeck. Also keep in mind this is experimental, so it might not always work correctly.
 
-BotNeck is also special as it uses a send hook to capture the message before it is ever sent to the server. That means the message is never edited or deleted from the server and is instead captured, modified and sent to the server. This will in turn prevent spamming of messages for users on the server.
-I am also working on adding more features and commands as time goes on.
-
+BotNeck also contains lots of commands, and more are being added as time goes on, currently the best way to check for commands is with the "help" command. However I will make a list of all the commands soon.
 
 ----------
 
 API
 ---
+The API is easy to use, it uses JSDoc so you should be able to figure it out easily. I will be including documentation as soon as I can. But for now you can use the already made modules and the examples below.
 
- - BotNeckAPI.getCurrentServerId() - Returns the ID of the current open server
- - BotNeckAPI.getCurrentChannelId() - Returns the ID of the current open channel
- - BotNeckAPI.getLastUserMessageId() - Returns the ID of the last message the user sent
- - BotNeckAPI.getLastBotMessageId() - Returns the ID of the last message the bot sent
- - BotNeckAPI.getModulesPath() - Returns the path to the modules folder
- - BotNeckAPI.setAuthHeader(xmlhttprequest, apiKey) - Sets the Authorization token of the request
- - BotNeckAPI.generateError(error) - Generates an error embed with the specified message and returns it
- - BotNeckAPI.getArgumentNumber(args) - Gets the number of generic arguments specified
- - BotNeckAPI.getArgumentsAsString(args) - Returns all the arguments as a string
- - BotNeckAPI.nextMessagePost(function) - Executes function when a new message is successfully sent
- - BotNeckAPI.getCurrentUser(apiKey, function) - Returns the current user's information in the callback
- - APIKey - A variable containing the API key of the module
+**Example of module:**
+```js
+const { BotNeckModule, BotNeckClient, BotNeckCommand } = require('../BotNeckAPI');
 
+module.exports = class ExampleModule extends BotNeckModule {
+    constructor() {
+        super();
+    }
+
+    get Name() { return 'Example Module'; }
+    get Description() { return 'Example description'; }
+    get Version() { return '1.0.0'; }
+    get Author() { return 'AtiLion'; }
+
+    onLoad() {}
+    onUnload() {}
+}
+```
+
+**Example of command:**
+```js
+const { 
+    BotNeckCommand,
+    DiscordAPI: {
+        DiscordClientMessage
+    }
+} = require('../../BotNeckAPI');
+
+module.exports = class ExampleCommand extends BotNeckCommand {
+    get Command() { return 'example'; } // The command they need to type in to execute
+    get Description() { return 'Example command description'; }
+    get Usage() { return 'example <example required argument> [example optional argument]'; }
+
+    /**
+     * This function gets executed when the command is called
+     * @param {DiscordClientMessage} message The message the client is trying to send
+     * @param {any} args The arguments of the command
+     */
+    execute(message, args) {}
+}
+```
 
 ----------
 
 How to install
 --------------
-
  1. Download the ZIP file from the Releases section.
  2. Extract all folders and files from the ZIP file into your BetterDiscord plugins.
  3. Restart discord if you have it open.
  4. You are done!
-
 
 ----------
 
@@ -76,6 +83,13 @@ How to install a module
 > Some modules may do malicious things without your knowledge. It is highly recommended that you only use modules from a trusted source!
 
  1. Go to your BetterDiscord plugins folder.
- 2. Inside the folder open the BotNeck_Modules folder.
- 3. Put the .botneck.js file/files inside the folder.
- 4. And you are done!
+ 2. Inside the folder open the BotNeckBot/modules folder.
+ 3. Put the module folder/file into the directory
+ 4. Run the reload command
+ 5. And you are done!
+
+ ----------
+
+Credits
+-----------------------
+- [rauenzi](https://github.com/rauenzi) - [BDPluginLibrary](https://github.com/rauenzi/BDPluginLibrary)
