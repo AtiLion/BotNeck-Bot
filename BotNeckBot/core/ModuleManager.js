@@ -50,7 +50,7 @@ module.exports = class ModuleManager {
      */
     loadModule(moduleName) {
         const modulePath = path.resolve(this.modulesDirectory, moduleName);
-        if(!fs.existsSync(modulePath)) return;
+        if(!fs.existsSync(modulePath) || !moduleName.endsWith('.js')) return;
         BotNeckLog.log('Initializing module', moduleName);
 
         const requiredModule = require(modulePath);
