@@ -38,19 +38,24 @@ module.exports = class BotNeckBot {
             _discordNetwork = new DiscordNetwork();
             _discordNetwork.onRequestSent = (requestJson, isBotRequest) => {
                 if(requestJson.content === null) return;
+                BotNeckClient.emit('messageSend', new DiscordClientMessage(requestJson), isBotRequest);
                 BotNeckClient.onMessageSend.invoke(new DiscordClientMessage(requestJson), isBotRequest);
             }
             _discordNetwork.onResponseReceived = (responseJson, isBotRequest) => {
                 if(!responseJson.id || !responseJson.author) return;
+                BotNeckClient.emit('messageResponse', new DiscordMessage(responseJson), isBotRequest);
                 BotNeckClient.onMessageResponse.invoke(new DiscordMessage(responseJson), isBotRequest);
             }
             _discordNetwork.onWSReceived = (wsJson) => {
                 if(!wsJson.d) return; // Make sure it's valid
 
-                if(wsJson.t === 'MESSAGE_CREATE' && wsJson.d.author && currentUser.Id === wsJson.d.author.id) // Make sure it's a message from the current user
-                    BotNeckClient.onMessageReceived.invoke(new DiscordMessage(wsJson.d));
-                else
-                    BotNeckClient.onWebSocketReceive.invoke(wsJson);
+                if(wsJson.t === 'MESSAGE_CREATE') {
+                    BotNeckClient.emit('messageReceived', new DiscordMessage(wsJson.d), (wsJson.d.author && currentUser.Id === wsJson.d.author.id));
+                    if(wsJson.d.author && currentUser.Id === wsJson.d.author.id)
+                        BotNeckClient.onMessageReceived.invoke(new DiscordMessage(wsJson.d));
+                }
+                BotNeckClient.emit('websocketReceived', wsJson);
+                BotNeckClient.onWebSocketReceive.invoke(wsJson);
             }
 
             _commandManager = new CommandManager(parsedConfig);

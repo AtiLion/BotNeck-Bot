@@ -147,12 +147,10 @@ class DiscordMessage {
             .then(newObj => {
                 this.message = newObj;
                 resolve();
-            })
-            .catch(reject);
+            }).catch(reject);
         });
     }
 }
 
 module.exports = { DiscordClientMessageBase, DiscordClientMessage, DiscordMessage }
 const BotNeckClient = require('../BotNeckClient');
-const BotNeckLog = require('../BotNeckLog');
