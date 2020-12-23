@@ -99,7 +99,8 @@ module.exports = class EmbedCommand extends BotNeckCommand {
 				embed.timestamp = new Date().toISOString();
 			else if(embed.timestamp != '')
 				embed.timestamp = new Date(embed.timestamp).toISOString();
-        }
+		}
+		if(embed.color && !isNaN(embed.color)) embed.color = Number(embed.color);
         
         if(args['save']) {
             Config.Instance.SavedEmbeds[args['save']] = embed;
