@@ -1,16 +1,18 @@
 const { 
-    BotNeckCommand,
+	BotNeckCommand,
+	BotNeckLog,
+	BotNeckPresets,
     DiscordAPI: {
         DiscordEmbed,
         DiscordClientMessage
-    }
+	}
 } = require('../../BotNeckAPI');
 const Config = require('../config');
 
 module.exports = class EmbedCommand extends BotNeckCommand {
     get Command() { return 'embed'; }
     get Description() { return 'Creates and sends an embed based on parameters'; }
-    get Usage() { return 'embed color=0x0061ff footer.text=\'Footer\' field.name1=\'value1\' [description]'; }
+    get Usage() { return 'embed json=\'{json code here}\' color=0x0061ff footer.text=\'Footer\' field.name1=\'value1\' [description]'; }
 
     get DefaultEmbed() {
         return {
@@ -39,11 +41,19 @@ module.exports = class EmbedCommand extends BotNeckCommand {
      * @param {any} args The arguments of the command
      */
     execute(message, args) {
+		BotNeckLog.log('Executed embed command:', message.Content);
         message.Content = '';
         
-        let embed = this.DefaultEmbed;
+		let embed = this.DefaultEmbed;
         if(args['load'] && Config.Instance.SavedEmbeds[args['load']])
-            embed = JSON.parse(JSON.stringify(Config.Instance.SavedEmbeds[args['load']]));
+			embed = JSON.parse(JSON.stringify(Config.Instance.SavedEmbeds[args['load']]));
+		if(args['json']) {
+			try { embed = JSON.parse(args['json']); }
+			catch (err) {
+				BotNeckLog.error(err, 'Failed to parse JSON!');
+				return BotNeckPresets.createError(message, 'Failed to parse JSON! Check console.');
+			}
+		}
 		
 		let temp = BotNeckCommand.getArgumentsAsString(args);
 		if(temp && temp.length) embed.description = temp;
