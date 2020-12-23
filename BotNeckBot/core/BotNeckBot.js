@@ -59,11 +59,12 @@ module.exports = class BotNeckBot {
             }
 
             _commandManager = new CommandManager(parsedConfig);
-            BotNeckClient.onMessageSend.addEventCallback((message, isBotRequest) => {
+            BotNeckClient.on('messageSend', (message, isBotRequest) => {
                 if(isBotRequest) return;
                 _commandManager.handleMessage(message);
             });
-            BotNeckClient.onMessageReceived.addEventCallback((message) => {
+            BotNeckClient.on('messageReceived', (message, sentByCurrentUser) => {
+                if(!sentByCurrentUser) return; // Make sure it's sent by the current user
                 if(!parsedConfig.IsMaster) return; // Make sure our current client is the master
                 let baseMessage = new DiscordClientMessageBase();
 
