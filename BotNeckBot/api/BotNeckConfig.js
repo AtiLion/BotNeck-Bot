@@ -21,7 +21,11 @@ module.exports = class BotNeckConfig {
         const confPath = ConfigManager.Instance.convertNameToPath(confInstance.configName);
 
         return new Promise((resolve, reject) => {
-            if(!fs.existsSync(confPath)) return resolve(confInstance);
+            if(!fs.existsSync(confPath)) {
+                ConfigManager.Instance.saveConfiguration(confInstance.configName, confInstance.config)
+                .then(() => resolve(confInstance)).catch(reject);
+                return;
+            }
 
             ConfigManager.Instance.loadConfiguration(confInstance.configName)
             .then(conf => {
@@ -47,7 +51,11 @@ module.exports = class BotNeckConfig {
         const confPath = ConfigManager.Instance.convertNameToPath(instance.configName);
 
         return new Promise((resolve, reject) => {
-            if(!fs.existsSync(confPath)) return resolve();
+            if(!fs.existsSync(confPath)) {
+                ConfigManager.Instance.saveConfiguration(confInstance.configName, confInstance.config)
+                .then(() => resolve()).catch(reject);
+                return;
+            }
 
             ConfigManager.Instance.loadConfiguration(instance.configName)
             .then(conf => {

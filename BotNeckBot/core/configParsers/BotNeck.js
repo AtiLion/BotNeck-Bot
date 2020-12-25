@@ -11,6 +11,12 @@ module.exports = class BotNeckParser extends BotNeckConfig {
             return;
         }
         _instance = this;
+
+        // Set defaults
+        this.Prefix = '->';
+        this.ErrorOnCommandNotFound = true;
+        this.ErrorOnNotEnoughArguments = true;
+        this.IsMaster = false;
     }
 
     /**

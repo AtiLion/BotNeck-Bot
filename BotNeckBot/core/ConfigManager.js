@@ -77,7 +77,7 @@ module.exports = class ConfigManager {
 
             if(!configObject) return reject('Configuration object cannot be null');
             try {
-                fs.writeFile(configPath, JSON.stringify(configObject), err => {
+                fs.writeFile(configPath, JSON.stringify(configObject, null, '\t'), err => {
                     if(err) return reject(err);
                     resolve();
                 });
