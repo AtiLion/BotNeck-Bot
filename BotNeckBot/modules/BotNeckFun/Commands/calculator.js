@@ -25,6 +25,6 @@ module.exports = class CalculatorCommand extends BotNeckCommand {
             Title: 'Calculator'
         });
         message.Embed.addField('Calculation', input);
-        message.Embed.addField('Result', eval(input));
+        message.Embed.addField('Result', String(eval(input)));
     }
 }
