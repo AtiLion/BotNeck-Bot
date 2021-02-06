@@ -8,6 +8,7 @@ const BotNeckClient = require('../api/BotNeckClient');
 const { DiscordClientMessageBase, DiscordClientMessage, DiscordMessage, DiscordUser } = require('../api/DiscordAPI');
 const { BotNeckParser } = require('./configParsers');
 const BotNeckConfig = require('../api/BotNeckConfig');
+const { embedToContent } = require('../api/BotNeckConverter');
 
 /**
  * @type {ConfigManager}
@@ -61,7 +62,12 @@ module.exports = class BotNeckBot {
             _commandManager = new CommandManager(parsedConfig);
             BotNeckClient.on('messageSend', (message, isBotRequest) => {
                 if(isBotRequest) return;
-                _commandManager.handleMessage(message);
+                if(_commandManager.handleMessage(message)) {
+                    if(BotNeckParser.Instance.TextOnly) {
+                        message.Content = embedToContent(message.Embed);
+                        message.Embed = null;
+                    }
+                }
             });
             BotNeckClient.on('messageReceived', (message, sentByCurrentUser) => {
                 if(!sentByCurrentUser) return; // Make sure it's sent by the current user

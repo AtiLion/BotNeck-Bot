@@ -13,6 +13,7 @@ module.exports = class BotNeckParser extends BotNeckConfig {
         _instance = this;
 
         // Set defaults
+        this.TextOnly = false;
         this.Prefix = '->';
         this.ErrorOnCommandNotFound = true;
         this.ErrorOnNotEnoughArguments = true;
@@ -24,6 +25,13 @@ module.exports = class BotNeckParser extends BotNeckConfig {
      * @returns {BotNeckParser} The instance of the BotNeck config
      */
     static get Instance() { return _instance; }
+
+    /**
+     * When enbaled the bot will convert embeds into text
+     * @returns {Boolean}
+     */
+    get TextOnly() { return this.config.textOnly; }
+    set TextOnly(textOnly) { this.config.textOnly = textOnly; }
 
     /**
      * The prefix used to specify what is a command

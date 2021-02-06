@@ -4,5 +4,6 @@ const Reload = require('./Reload');
 const ReloadConfig = require('./ReloadConfig');
 const Prefix = require('./Prefix');
 const Remote = require('./Remote');
+const TextOnly = require('./TextOnly');
 
-module.exports = { Help, Usage, Reload, ReloadConfig, Prefix, Remote }
+module.exports = { Help, Usage, Reload, ReloadConfig, Prefix, Remote, TextOnly }

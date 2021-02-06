@@ -39,7 +39,6 @@ module.exports = {
             },
             Timestamp: new Date()
         }
-
         for(let embedKey in embed)
             message.Embed[embedKey] = embed[embedKey];
     }
