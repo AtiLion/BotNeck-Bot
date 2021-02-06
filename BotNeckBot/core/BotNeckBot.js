@@ -79,6 +79,11 @@ module.exports = class BotNeckBot {
                 if(_commandManager.handleMessage(baseMessage)) {
                     if(baseMessage.Content === '' || !baseMessage.Content) baseMessage.Content = ' '; // Make sure we have an empty message content
 
+                    if(BotNeckParser.Instance.TextOnly) {
+                        baseMessage.Content = embedToContent(baseMessage.Embed);
+                        baseMessage.Embed = null;
+                    }
+
                     message.editMessage(baseMessage)
                     .then(() => BotNeckLog.log('Invoked remote message', message))
                     .catch(err => BotNeckLog.error(err, 'Failed to invoke remote message', message));
