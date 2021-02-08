@@ -15,6 +15,6 @@ module.exports = {
     error: function(error, ...message) {
         if(message.length > 0)
             console.log('%c%s%c%s', 'color: Red', '[BotNeck Bot] ', 'color: White', ...message);
-        console.error(error);
+        console.log(error);
     }
 }
