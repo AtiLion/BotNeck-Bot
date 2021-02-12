@@ -141,6 +141,8 @@ class DiscordMessage {
             for(let key in newMessage) dObj[key] = newMessage[key];
             newMessage = dObj;
         }
+        if(!newMessage.message.embed)
+            newMessage.message.embed = null;
 
         return new Promise((resolve, reject) => {
             BotNeckClient.sendAuthorizedRequest(`/channels/${this.ChannelId}/messages/${this.Id}`, 'PATCH', newMessage.message)
