@@ -15,6 +15,7 @@ const Wallpaper = require('./wallpaper');
 const AniList = require('./anilist');
 const MAL = require('./mal');
 const Embed = require('./embed');
+const XKCD = require('./xkcd');
 
 module.exports = {
     EightBall,
@@ -33,5 +34,6 @@ module.exports = {
     Wallpaper,
     AniList,
     MAL,
-    Embed
+    Embed,
+    XKCD
 }
