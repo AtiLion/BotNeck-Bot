@@ -69,17 +69,5 @@ module.exports = class xkcdCommand extends BotNeckCommand {
             replyMessage.Content = `Here is your XKCD webcomic: https://xkcd.com/${Math.floor((Math.random() * highestNumber) + 1)}/`;
             dMessage.editMessage(replyMessage);
         });
-
-
-
-        /*let comicnumber = BotNeckCommand.getArgumentsAsString(args);
-
-        if (argnumber == "") {
-            message.Content = `Here is your random **XKCD** webcomic page:
-            https://xkcd.com/${Math.floor((Math.random() * page) + 1)}/`;
-        }else{
-            message.Content = `Here is your specific **XKCD** webcomic page:
-            https://xkcd.com/${comicnumber}`;
-        }*/
     }
 }
