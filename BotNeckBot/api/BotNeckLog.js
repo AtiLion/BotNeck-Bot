@@ -4,7 +4,7 @@ module.exports = {
      * @param  {...any} message The message to print into the console
      */
     log: function(...message) {
-        console.log('%c%s%c%s', 'color: DodgerBlue', '[BotNeck Bot] ', 'color: White', ...message);
+        console.log('%c%s%c%s', 'color: DodgerBlue; font-weight: bold;', '[BotNeck Bot] ', '', ...message);
     },
     
     /**
@@ -14,7 +14,7 @@ module.exports = {
      */
     error: function(error, ...message) {
         if(message.length > 0)
-            console.log('%c%s%c%s', 'color: Red', '[BotNeck Bot] ', 'color: White', ...message);
+            console.log('%c%s%c%s', 'color: Red; font-weight: bold;', '[BotNeck Bot] ', '', ...message);
         console.log(error);
     }
 }
