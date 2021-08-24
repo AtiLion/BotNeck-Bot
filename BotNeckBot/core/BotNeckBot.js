@@ -9,7 +9,6 @@ const { DiscordClientMessageBase, DiscordClientMessage, DiscordMessage, DiscordU
 const { BotNeckParser } = require('./configParsers');
 const BotNeckConfig = require('../api/BotNeckConfig');
 const { embedToContent } = require('../api/BotNeckConverter');
-const BotNeckInfo = require('../BotNeckInfo');
 
 /**
  * @type {ConfigManager}
@@ -122,8 +121,8 @@ module.exports = class BotNeckBot {
         }
     }
 
-    static get Name() { return BotNeckInfo.Name; }
-    static get Description() { return BotNeckInfo.Description; }
-    static get Version() { return BotNeckInfo.Version; }
-    static get Author() { return BotNeckInfo.Author; }
+    static get Name() { return 'BotNeck Bot'; }
+    static get Description() { return 'Adds selfbot commands to the Discord client.'; }
+    static get Version() { return '3.0.3'; }
+    static get Author() { return 'AtiLion'; }
 }
