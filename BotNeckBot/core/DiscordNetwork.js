@@ -78,7 +78,7 @@ function cleanHttpOpen() {
 //------------------------------- XMLHttpRequest.setRequestHeader
 let authorizationToken = null;
 payloads['httpSetHeader'] = function(header, value, isBotNeckMessage, url) {
-    if(url.startsWith('https://discordapp.com') && header.toLowerCase() === 'authorization' && !isBotNeckMessage)  {
+    if((url.startsWith('https://discordapp.com') || url.startsWith('https://canary.discord.com')) && header.toLowerCase() === 'authorization' && !isBotNeckMessage)  {
         if(!authorizationToken)
             BotNeckLog.log('Set authorization token!');
         else if(authorizationToken !== value)
@@ -97,6 +97,7 @@ function overrideHttpSetRequestHeader() {
             BotNeckBot.originals['originalHttpSetHeader'] = XMLHttpRequest.prototype.setRequestHeader;
 
             XMLHttpRequest.prototype.setRequestHeader = function(header, value) {
+                if(header.toLowerCase() === 'content-type' && value === 'application/json') this._allowEdits = true;
                 BotNeckBot.payloads['httpSetHeader'](header, value, false, this._url);
 
                 return BotNeckBot.originals['originalHttpSetHeader'].call(this, header, value);
@@ -104,6 +105,7 @@ function overrideHttpSetRequestHeader() {
         `);
     }
     XMLHttpRequest.prototype.setRequestHeader = function(header, value) {
+        if(header.toLowerCase() === 'content-type' && value === 'application/json') this._allowEdits = true;
         payloads['httpSetHeader'](header, value, this.botNeckMessage || false, this._url);
         
         return originalHttpSetHeader.call(this, header, value);
@@ -127,7 +129,7 @@ payloads['httpSend'] = function(data, isBotNeckMessage, escalateAuthorization, u
     }
 
     const authorization = null;
-    if(escalateAuthorization && url.startsWith('https://discordapp.com/') && authorizationToken)
+    if(escalateAuthorization && (url.startsWith('https://discordapp.com/') || url.startsWith('https://canary.discord.com/')) && authorizationToken)
         authorization = authorizationToken;
 
     return { data, authorization };
@@ -142,6 +144,8 @@ function overrideHttpSend() {
             BotNeckBot.originals['originalHttpSend'] = XMLHttpRequest.prototype.send;
 
             XMLHttpRequest.prototype.send = function(originalData) {
+                if(!this._allowEdits) return BotNeckBot.originals['originalHttpSend'].call(this, originalData);
+
                 const { data, authorization } = BotNeckBot.payloads['httpSend'](originalData, false, this.escalateAuthorization, this._url);
 
                 if(authorization) this.setRequestHeader('Authorization', authorization);
@@ -150,6 +154,8 @@ function overrideHttpSend() {
         `);
     }
     XMLHttpRequest.prototype.send = function(originalData) {
+        if(!this._allowEdits) return BotNeckBot.originals['originalHttpSend'].call(this, originalData);
+
         const { data, authorization } = payloads['httpSend'](originalData, this.botNeckMessage || false, this.escalateAuthorization, this._url);
 
         if(authorization) this.setRequestHeader('Authorization', authorization);
@@ -221,7 +227,7 @@ function overrideAjax() {
 
             { origBeforeSend(xhr); }
 
-            if(xhr.escalateAuthorization && reqObj.url.startsWith('https://discordapp.com/'))
+            if(xhr.escalateAuthorization && (reqObj.url.startsWith('https://discordapp.com/') || reqObj.url.startsWith('https://canary.discord.com/')))
                 setRequestHeader('Authorization', authorizationToken);
         };
 
