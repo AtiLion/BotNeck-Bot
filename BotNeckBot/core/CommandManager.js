@@ -81,7 +81,7 @@ module.exports = class CommandManager {
         let args = {};
 
         let _escaped = false;
-        let _inString = false;
+        let _inString = '';
         let currentText = '';
         let activeKeys = [];
         let index = 0;
@@ -109,8 +109,14 @@ module.exports = class CommandManager {
                     continue;
                 }
                 else if(char === '"' || char === '\'') {
-                    _inString = !_inString;
-                    continue;
+                    if(_inString === char) {
+                        _inString = '';
+                        continue;
+                    }
+                    else if(!_inString) {
+                        _inString = char;
+                        continue;
+                    }
                 }
 
                 if(!_inString) {
