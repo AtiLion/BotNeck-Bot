@@ -67,8 +67,8 @@ module.exports = class BotNeckBot {
             BotNeckClient.on('messageSend', (message, isBotRequest) => {
                 if(isBotRequest) return;
                 if(_commandManager.handleMessage(message)) {
-                    if(BotNeckParser.Instance.TextOnly) {
-                        message.Content = embedToContent(message.Embed);
+                    if(BotNeckParser.Instance.TextOnly && message.Embed) {
+                        message.Content += '\n\n' + embedToContent(message.Embed);
                         message.Embed = null;
                     }
                 }
@@ -83,8 +83,8 @@ module.exports = class BotNeckBot {
                 if(_commandManager.handleMessage(baseMessage)) {
                     if(baseMessage.Content === '' || !baseMessage.Content) baseMessage.Content = ' '; // Make sure we have an empty message content
 
-                    if(BotNeckParser.Instance.TextOnly) {
-                        baseMessage.Content = embedToContent(baseMessage.Embed);
+                    if(BotNeckParser.Instance.TextOnly && message.Embed) {
+                        baseMessage.Content += '\n\n' + embedToContent(baseMessage.Embed);
                         baseMessage.Embed = null;
                     }
 
