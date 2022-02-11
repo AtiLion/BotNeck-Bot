@@ -4,8 +4,6 @@ BotNeck Bot is a self-bot that is implemented into discord as a **BandagedDiscor
 
 To use the bot you need to use the prefix "->" if you want to change the prefix you can change the configuration located it "BotNeckBot/config/BotNeck.json" file. You can also change it by using the prefix command.
 
-[![Discord](https://img.shields.io/badge/Discord-My%20Personal%20Projects%20Server-blue?style=for-the-badge&logo=discord)](https://discord.gg/qWVgdxu)
-
 ----------
 
 About
